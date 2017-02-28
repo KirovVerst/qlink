@@ -1,6 +1,6 @@
 import pandas as pd
-
-data = pd.read_csv('original/data_1.csv')
+import random
+from math import ceil
 
 
 def duplicate_rows(data, frac=0.0):
@@ -13,3 +13,45 @@ ex_example = duplicate_rows(data, frac=0.1)
 
 ex_example.to_csv('extended/data_1.csv', index=False)
 """
+
+
+def add_letter(s):
+    position = random.randrange(len(s))
+    return s[:position] + s[position] + s[position:]
+
+
+def remove_letter(s):
+    position = random.randint(0, len(s) - 1)
+    return s[:position] + s[position + 1:]
+
+
+def make_random_mistake(s):
+    return add_letter(s) if random.random() > 0.5 else remove_letter(s)
+
+
+def add_mistakes(X, columns, fracs):
+    """
+
+    :param X: pandas dataframe
+    :param columns: list column names. ["first_name", "second_name"]
+    :param fracs: list of fractions. Fractions' and columns' lists must have the same length. [0.1, 0.05]
+    :return: pandas dataframe
+    """
+    n = len(X)
+    counts = [ceil(x * n) for x in fracs]
+    for i in range(len(columns)):
+        ex = X.head(counts[i])
+        ex[columns[i]] = ex[columns[i]].apply(make_random_mistake)
+        X = pd.concat([ex, X.iloc[counts[i]:]])
+        X = X.sample(frac=1)
+    return X
+
+
+data = pd.read_csv('extended/data_1.csv')
+
+data = data.sample(frac=0.02)
+fracs = [0.3, 0.3]
+columns = ["first_name", "last_name"]
+changed_data = add_mistakes(data, columns, fracs)
+
+print(data.iloc[:, :3])
