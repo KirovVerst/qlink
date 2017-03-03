@@ -8,13 +8,6 @@ def duplicate_rows(data, frac=0.0):
     return pd.concat([data, extra])
 
 
-"""
-ex_example = duplicate_rows(data, frac=0.1)
-
-ex_example.to_csv('extended/data_1.csv', index=False)
-"""
-
-
 def add_letter(s):
     position = random.randrange(len(s))
     return s[:position] + s[position] + s[position:]
@@ -47,11 +40,17 @@ def add_mistakes(X, columns, fracs):
     return X
 
 
+"""
+data = pd.read_csv('original/data_1.csv')
+ex_example = duplicate_rows(data, frac=0.3)
+
+ex_example.to_csv('extended/data_1.csv', index=False)
+"""
+
 data = pd.read_csv('extended/data_1.csv')
 
-data = data.sample(frac=0.02)
 fracs = [0.3, 0.3]
 columns = ["first_name", "last_name"]
 changed_data = add_mistakes(data, columns, fracs)
 
-print(data.iloc[:, :3])
+changed_data.to_csv('ready/data_1.csv', index=False)
