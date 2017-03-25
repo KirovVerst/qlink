@@ -1,76 +1,97 @@
 import pandas as pd
-import numpy as np
+import datetime, ast
+import os
+from metrics import edit_distance, error_number
+from preprocessing import remove_double_letters
+from result_saving import write_duplicates, write_meta_data
 
+start_time = datetime.datetime.now()
+INITIAL_DATA_SIZE = 100
+data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))
 
-def distance(a, b):
-    "Calculates the Levenshtein distance between a and b."
-    n, m = len(a), len(b)
-    if n > m:
-        a, b = b, a
-        n, m = m, n
+N = len(data)
+x = [[0] * N for _ in range(N)]
 
-    current_row = range(n + 1)
-    for i in range(1, m + 1):
-        previous_row, current_row = current_row, [i] + [0] * n
-        for j in range(1, n + 1):
-            add, delete, change = previous_row[j] + 1, current_row[j - 1] + 1, previous_row[j - 1]
-            if a[j - 1] != b[i - 1]:
-                change += 1
-            current_row[j] = min(add, delete, change)
-
-    return current_row[n]
-
-
-data = pd.read_csv('data/ready/data_1.csv')
-
-x = []
+"""
+Levenshtein distance calculation
+"""
 indexes = data.index.values
 max_dist = -1
-for i in indexes:
-    measures = []
-    for j in indexes:
-        d = distance(data.get_value(i, 'first_name'), data.get_value(j, 'first_name'))
-        d += distance(data.get_value(i, 'last_name'), data.get_value(j, 'last_name'))
+for i in range(N):
+    s1 = data.iloc[i]['first_name'] + data.iloc[i]['last_name']
+    s1 = remove_double_letters(s1)
+    for j in range(i + 1, N):
+
+        s2 = data.iloc[j]['first_name'] + data.iloc[j]['last_name']
+        s2 = remove_double_letters(s2)
+
+        d = edit_distance(s1, s2)
+
         if d > max_dist:
             max_dist = d
-        measures.append(d)
-    x.append(measures)
+        x[i][j] = d
+        x[j][i] = d
 
 print("Levenshtein distances have been calculated")
+"""
+Levenshtein distance normalization
+"""
+LEVEL = 0.85
 
-for i in range(len(x)):
-    for j in range(len(x[i])):
-        x[i][j] = float(max_dist - x[i][j]) / max_dist
-    x[i][i] = -1
+for i in range(N):
+    x[i] = list(map(lambda y: (max_dist - y) / max_dist, x[i]))
+    x[i][i] = 0
 
-print("Metrics have been calculated")
+print("Normalization has been done")
 
+"""
+Duplicate search
+"""
 predicted_indexes = list()
 
-LEVEL = 0.9
-predicted_values = {'first_name': [], 'last_name': [], 'id': [], 'line': []}
-for row in x:
-    max_index, max_value = max(enumerate(row), key=lambda p: p[1])
+LEVEL = 0.85
+results = list()
+processed = set()
+
+
+def rec(i, row):
+    processed.add(i)
+    try:
+        index, max_value = max(enumerate(row[i + 1:]), key=lambda p: p[1])
+        index += (i + 1)
+    except Exception:
+        max_value = 0.0
     if max_value > LEVEL:
-        predicted_values['line'].append(indexes[max_index])
-        predicted_values['id'].append(data.loc[indexes[max_index]]['original_id'])
-        predicted_values['first_name'].append(data.loc[indexes[max_index]]['first_name'])
-        predicted_values['last_name'].append(data.loc[indexes[max_index]]['last_name'])
+        return rec(index, row) + [index]
     else:
-        predicted_values['line'].append(None)
-        predicted_values['id'].append(None)
-        predicted_values['first_name'].append(None)
-        predicted_values['last_name'].append(None)
+        return []
 
-data = data.assign(pred_id=predicted_values['id'],
-                   pred_first_name=predicted_values['first_name'],
-                   pred_last_name=predicted_values['last_name'],
-                   line=predicted_values['line'])
 
-data = data[pd.notnull(data['pred_id'])]
-data.to_csv('results/data_1.csv', index=False)
+for i, row in enumerate(x):
+    if i not in processed:
+        duplicates = [i] + rec(i, row)
+        results.append(duplicates)
+print("Duplicates have been found")
 
-acc = np.mean(data[:]['original_id'].values == data[:]['pred_id'].values)
+"""
+Error number calculation
+"""
+truth = []
+with open('data/true_duplicates/data_{0}.txt'.format(INITIAL_DATA_SIZE), 'r') as f:
+    for line in f.readlines():
+        arr = ast.literal_eval(line[:-1])
+        truth.append(arr)
 
-with open('results/accurancy', 'w') as f:
-    f.write("{0}".format(acc))
+n_errors = error_number(truth, results, N)
+print("Error number has been calculated")
+"""
+Write the results
+"""
+t = start_time.strftime("%d-%m %H:%M:%S").replace(" ", "__")
+folder_path = 'results/{0}/'.format(t)
+os.mkdir(folder_path)  # TODO: try-catch
+
+write_duplicates(folder_path, results)
+write_meta_data(folder_path, N, n_errors, start_time)
+print("Results have been saved")
+
