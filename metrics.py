@@ -17,71 +17,65 @@ def edit_distance(a, b):
     return current_row[n]
 
 
-def error_number(list1, list2, N):
+def error_number(true, predict, N):
     """
-    There is the set of objects. list1 is the set partition. list2 is another one.
+    There is the set of objects. "true" is the set partition. "predict" is another one.
     Function calculates the number of differences between this partitions.
     Example 1: 
-        list1 = [[1, 2]]
-        list2 = [[1], [2]]
+        true = [[1, 2]]
+        predict = [[1], [2]]
         errors = 1 
-    :param list1: list of lists 
-    :param list2: list of lists
+    :param true: list of lists 
+    :param predict: list of lists
     :param N: total number of unique objects
-    :return: 
+    :return: num_error, errors
     """
 
     result = 0
     i1 = 0
-    n1 = len(list1)
+    n1 = len(true)
     i2 = 0
-    n2 = len(list2)
+    n2 = len(predict)
+    errors = []
 
     while i1 < N or i2 < N:
         d = 0
         if i1 < n1:
-            s1 = set(list1[i1])
-            x = list1[i1][0]
+            s1 = set(true[i1])
+            x = true[i1][0]
         else:
             if i2 < n2:
-                rest = list2[i2:]
-                # print("i2 < n2")
-                d += sum([len(arr) for arr in rest])
+                rest = predict[i2:]
+                result += sum([len(arr) for arr in rest])
             break
 
         if i2 < n2:
-            s2 = set(list2[i2])
-            y = list2[i2][0]
+            s2 = set(predict[i2])
+            y = predict[i2][0]
         else:
             if i1 < n1:
-                rest = list1[i1:]
-                # print("i1 < n1")
-                d += sum([len(arr) for arr in rest])
+                rest = true[i1:]
+                result += sum([len(arr) for arr in rest])
             break
 
         if len(s1.intersection(s2)):
             d += len(s1.symmetric_difference(s2))
-            # if d > 0:
-            #   print(list1[i1])
-            #   print(list2[i2])
+            if d > 0:
+                errors.append(dict(true=s1, pred=s2))
             i1 += 1
             i2 += 1
 
         else:
             if y < x:
-                # print([])
-                # print(list2[i2])
                 d += len(s2)
                 i2 += 1
 
             else:
-                # print(list1[i1])
-                # print([])
                 d += len(s1)
                 i1 += 1
-                # if d > 0:
-                # print(d)
-                # print('\n')
         result += d
 
-    return result // 2
+    return result / 2, errors
+
+
+true = [[1,2], [3,4]]

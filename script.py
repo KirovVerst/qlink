@@ -3,10 +3,10 @@ import datetime, ast
 import os
 from metrics import edit_distance, error_number
 from preprocessing import remove_double_letters
-from result_saving import write_duplicates, write_meta_data
+from result_saving import write_duplicates, write_meta_data, write_errors
 
 START_TIME = datetime.datetime.now()
-INITIAL_DATA_SIZE = 1000
+INITIAL_DATA_SIZE = 150
 LEVEL = 0.85
 
 data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))
@@ -57,8 +57,12 @@ processed = set()
 def rec(i, row):
     processed.add(i)
     try:
-        index = row[i + 1:].index(True)
-        index += (i + 1)
+        index = i
+        if index == 172:
+            print(index)
+        while index in processed:
+            d = row[index + 1:].index(True)
+            index = index + d + 1
         return [index] + rec(index, row)
     except Exception:
         return []
@@ -79,7 +83,7 @@ with open('data/true_duplicates/data_{0}.txt'.format(INITIAL_DATA_SIZE), 'r') as
         arr = ast.literal_eval(line[:-1])
         truth.append(arr)
 
-n_errors = error_number(truth, results, N)
+n_errors, errors = error_number(truth, results, N)
 print("Error number has been calculated")
 """
 Write the results
@@ -89,5 +93,6 @@ folder_path = 'results/{0}/'.format(t)
 os.mkdir(folder_path)  # TODO: try-catch
 
 write_duplicates(folder_path, results)
+write_errors(folder_path, data=data, errors=errors)
 write_meta_data(folder_path, N, n_errors, START_TIME)
 print("Results have been saved")
