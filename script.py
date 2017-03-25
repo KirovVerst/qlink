@@ -6,7 +6,7 @@ from preprocessing import remove_double_letters
 from result_saving import write_duplicates, write_meta_data
 
 START_TIME = datetime.datetime.now()
-INITIAL_DATA_SIZE = 500
+INITIAL_DATA_SIZE = 1000
 LEVEL = 0.85
 
 data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))

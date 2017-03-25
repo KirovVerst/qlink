@@ -41,7 +41,7 @@ def add_mistakes(x, columns, fracs):
 
 
 data = pd.read_csv('original/data_1.csv')
-N = 500
+N = 1000
 data = data.sample(N)
 extended_data = duplicate_rows(data, frac=0.3)
 
