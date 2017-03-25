@@ -3,9 +3,13 @@ import random
 from math import ceil
 
 
-def duplicate_rows(data, frac=0.0):
-    extra = data.sample(frac=frac)
-    return pd.concat([data, extra])
+def duplicate_rows(data, rng=1, frac=0.0):
+    l = [data]
+    extra = data
+    for i in range(rng):
+        extra = extra.sample(frac=frac)
+        l.append(extra)
+    return pd.concat(l)
 
 
 def add_letter(s):
@@ -43,7 +47,7 @@ def add_mistakes(x, columns, fracs):
 data = pd.read_csv('original/data_1.csv')
 N = 1000
 data = data.sample(N)
-extended_data = duplicate_rows(data, frac=0.3)
+extended_data = duplicate_rows(data, rng=2, frac=0.3)
 
 extended_data.to_csv('extended/data_{0}.csv'.format(N), index=False)
 

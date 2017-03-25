@@ -76,6 +76,3 @@ def error_number(true, predict, N):
         result += d
 
     return result / 2, errors
-
-
-true = [[1,2], [3,4]]
