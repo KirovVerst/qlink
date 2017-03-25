@@ -5,8 +5,10 @@ from metrics import edit_distance, error_number
 from preprocessing import remove_double_letters
 from result_saving import write_duplicates, write_meta_data
 
-start_time = datetime.datetime.now()
-INITIAL_DATA_SIZE = 150
+START_TIME = datetime.datetime.now()
+INITIAL_DATA_SIZE = 500
+LEVEL = 0.85
+
 data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))
 
 N = len(data)
@@ -36,11 +38,10 @@ print("Levenshtein distances have been calculated")
 """
 Levenshtein distance normalization
 """
-LEVEL = 0.85
 
 for i in range(N):
-    x[i] = list(map(lambda y: (max_dist - y) / max_dist > LEVEL, x[i]))
-    x[i][i] = 0
+    x[i] = x[i][:i + 1] + list(map(lambda y: (max_dist - y) / max_dist > LEVEL, x[i][i + 1:]))
+    x[i][i] = False
 
 print("Normalization has been done")
 
@@ -83,10 +84,10 @@ print("Error number has been calculated")
 """
 Write the results
 """
-t = start_time.strftime("%d-%m %H:%M:%S").replace(" ", "__")
+t = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
 folder_path = 'results/{0}/'.format(t)
 os.mkdir(folder_path)  # TODO: try-catch
 
 write_duplicates(folder_path, results)
-write_meta_data(folder_path, N, n_errors, start_time)
+write_meta_data(folder_path, N, n_errors, START_TIME)
 print("Results have been saved")
