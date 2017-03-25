@@ -53,6 +53,10 @@ changed_data = add_mistakes(extended_data, columns, fracs)
 
 changed_data.to_csv('ready/data_{0}.csv'.format(N), index=False)
 
+"""
+Duplicates search
+"""
+changed_data = changed_data.reset_index(drop=True)
 truth = {}
 for i, row in changed_data.iterrows():
     original_id = row['original_id']

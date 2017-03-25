@@ -6,7 +6,7 @@ from preprocessing import remove_double_letters
 from result_saving import write_duplicates, write_meta_data
 
 start_time = datetime.datetime.now()
-INITIAL_DATA_SIZE = 100
+INITIAL_DATA_SIZE = 150
 data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))
 
 N = len(data)
@@ -39,7 +39,7 @@ Levenshtein distance normalization
 LEVEL = 0.85
 
 for i in range(N):
-    x[i] = list(map(lambda y: (max_dist - y) / max_dist, x[i]))
+    x[i] = list(map(lambda y: (max_dist - y) / max_dist > LEVEL, x[i]))
     x[i][i] = 0
 
 print("Normalization has been done")
@@ -49,7 +49,6 @@ Duplicate search
 """
 predicted_indexes = list()
 
-LEVEL = 0.85
 results = list()
 processed = set()
 
@@ -57,13 +56,10 @@ processed = set()
 def rec(i, row):
     processed.add(i)
     try:
-        index, max_value = max(enumerate(row[i + 1:]), key=lambda p: p[1])
+        index = row[i + 1:].index(True)
         index += (i + 1)
+        return [index] + rec(index, row)
     except Exception:
-        max_value = 0.0
-    if max_value > LEVEL:
-        return rec(index, row) + [index]
-    else:
         return []
 
 
@@ -94,4 +90,3 @@ os.mkdir(folder_path)  # TODO: try-catch
 write_duplicates(folder_path, results)
 write_meta_data(folder_path, N, n_errors, start_time)
 print("Results have been saved")
-
