@@ -45,14 +45,14 @@ def add_mistakes(x, columns, fracs):
 
 
 data = pd.read_csv('original/data_1.csv')
-N = 1000
+N = 500
 data = data.sample(N)
 extended_data = duplicate_rows(data, rng=2, frac=0.3)
 
 extended_data.to_csv('extended/data_{0}.csv'.format(N), index=False)
 
-fracs = [0.3, 0.3]
-columns = ["first_name", "last_name"]
+fracs = [0.3, 0.3, 0.3]
+columns = ["first_name", "last_name", "father"]
 changed_data = add_mistakes(extended_data, columns, fracs)
 
 changed_data.to_csv('ready/data_{0}.csv'.format(N), index=False)

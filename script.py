@@ -8,7 +8,7 @@ from result_saving import write_duplicates, write_meta_data, write_errors
 
 START_TIME = datetime.datetime.now()
 INITIAL_DATA_SIZE = 1000
-LEVEL = 0.87
+LEVEL = 0.86
 
 data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))
 
@@ -40,9 +40,9 @@ Levenshtein distance normalization
 """
 
 for i in range(N):
-    x[i] = x[i][:i + 1] + list(map(lambda y: (max_dist - y) / max_dist > LEVEL, x[i][i + 1:]))
+    rest = list(map(lambda y: (max_dist - y) / max_dist, x[i][i + 1:]))
+    x[i] = x[i][:i + 1] + list(map(lambda y: y > LEVEL, rest))
     x[i][i] = False
-
 
 print("Normalization has been done")
 
