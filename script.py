@@ -2,96 +2,55 @@ import pandas as pd
 import datetime, ast
 import os
 
-from metrics import edit_distance, error_number
-from preprocessing import remove_double_letters
-from result_saving import write_duplicates, write_meta_data, write_errors
+from metrics import error_number, edit_distance_matrix
+from duplicate_searching import get_duplicates
+from result_saving import write_meta_data, write_errors
+
+INITIAL_DATA_SIZE = 100
+DOCUMENT_NUMBER = 4
+LEVEL = 0.80
 
 START_TIME = datetime.datetime.now()
-INITIAL_DATA_SIZE = 1000
-LEVEL = 0.86
+START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
+FOLDER_PATH = 'results/{0}-{1}/'.format(START_TIME_STR, INITIAL_DATA_SIZE)
+os.mkdir(FOLDER_PATH)  # TODO: try-catch
+total_time = datetime.timedelta()
+total_number_error = 0
 
-data = pd.read_csv('data/ready/data_{0}.csv'.format(INITIAL_DATA_SIZE))
+for document_i in range(DOCUMENT_NUMBER):
+    current_time = datetime.datetime.now()
+    print("{0} document".format(document_i + 1))
+    data = pd.read_csv('data/ready/{0}/data_{1}.csv'.format(INITIAL_DATA_SIZE, document_i))
 
-N = len(data)
-x = [[0] * N for _ in range(N)]
+    x = edit_distance_matrix(data, columns=['first_name', 'last_name', 'father'])
 
-"""
-Levenshtein distance calculation
-"""
-indexes = data.index.values
-max_dist = -1
-for i in range(N):
-    s1 = data.iloc[i]['first_name'] + data.iloc[i]['last_name'] + data.iloc[i]['father']
-    s1 = remove_double_letters(s1)
-    for j in range(i + 1, N):
+    results = get_duplicates(x)
+    """
+    Error number calculation
+    """
+    truth = []
+    with open('data/true_duplicates/{0}/data_{1}.txt'.format(INITIAL_DATA_SIZE, document_i), 'r') as f:
+        for line in f.readlines():
+            arr = ast.literal_eval(line[:-1])
+            truth.append(arr)
 
-        s2 = data.iloc[j]['first_name'] + data.iloc[j]['last_name'] + data.iloc[j]['father']
-        s2 = remove_double_letters(s2)
+    n_errors, errors = error_number(truth, results)
+    print("Error number has been calculated")
+    """
+    Write the results
+    """
+    document_folder_path = os.path.join(FOLDER_PATH, str(document_i))
+    os.mkdir(document_folder_path)  # TODO: try-catch
 
-        d = edit_distance(s1, s2)
-        if d > max_dist:
-            max_dist = d
-        x[i][j] = d
-        x[j][i] = d
+    write_errors(document_folder_path, data=data, errors=errors)
+    delta_time = datetime.datetime.now() - current_time
+    write_meta_data(document_folder_path, len(data), n_errors, delta_time)
+    print("Results have been saved\n")
+    total_time += delta_time
+    total_number_error += n_errors
 
-print("Levenshtein distances have been calculated")
-"""
-Levenshtein distance normalization
-"""
-
-for i in range(N):
-    rest = list(map(lambda y: (max_dist - y) / max_dist, x[i][i + 1:]))
-    x[i] = x[i][:i + 1] + list(map(lambda y: y > LEVEL, rest))
-    x[i][i] = False
-
-print("Normalization has been done")
-
-"""
-Duplicate search
-"""
-predicted_indexes = list()
-
-results = list()
-processed = set()
-
-
-def rec(i, row):
-    processed.add(i)
-    try:
-        index = i
-        while index in processed:
-            d = row[index + 1:].index(True)
-            index = index + d + 1
-        return [index] + rec(index, row)
-    except Exception:
-        return []
-
-
-for i, row in enumerate(x):
-    if i not in processed:
-        duplicates = [i] + rec(i, row)
-        results.append(duplicates)
-print("Duplicates have been found")
-
-"""
-Error number calculation
-"""
-truth = []
-with open('data/true_duplicates/data_{0}.txt'.format(INITIAL_DATA_SIZE), 'r') as f:
-    for line in f.readlines():
-        arr = ast.literal_eval(line[:-1])
-        truth.append(arr)
-
-n_errors, errors = error_number(truth, results, N)
-print("Error number has been calculated")
-"""
-Write the results
-"""
-t = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
-folder_path = 'results/{0}-{1}/'.format(t, INITIAL_DATA_SIZE)
-os.mkdir(folder_path)  # TODO: try-catch
-
-write_duplicates(folder_path, results)
-write_errors(folder_path, data=data, errors=errors)
-write_meta_data(folder_path, N, n_errors, START_TIME)
-print("Results have been saved")
+with open(os.path.join(FOLDER_PATH, 'meta.txt'), 'w') as f:
+    f.write("Dataset count: {0}\n".format(DOCUMENT_NUMBER))
+    f.write("Dataset size: {0}\n".format(len(data)))
+    f.write("Average time: {0}\n".format(total_time / DOCUMENT_NUMBER))
+    f.write("Average error number: {0}\n".format(total_number_error / 2))

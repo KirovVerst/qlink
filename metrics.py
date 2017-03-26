@@ -1,3 +1,6 @@
+from preprocessing import remove_double_letters
+
+
 def edit_distance(a, b):
     """Calculates the Levenshtein distance between a and b."""
     n, m = len(a), len(b)
@@ -17,7 +20,7 @@ def edit_distance(a, b):
     return current_row[n]
 
 
-def error_number(true, predict, N):
+def error_number(true, predict):
     """
     There is the set of objects. "true" is the set partition. "predict" is another one.
     Function calculates the number of differences between this partitions.
@@ -38,7 +41,7 @@ def error_number(true, predict, N):
     n2 = len(predict)
     errors = []
 
-    while i1 < N or i2 < N:
+    while i1 < n1 or i2 < n2:
         d = 0
         if i1 < n1:
             s1 = set(true[i1])
@@ -76,3 +79,41 @@ def error_number(true, predict, N):
         result += d
 
     return result / 2, errors
+
+
+def edit_distance_matrix(data, columns):
+    dataset_size = len(data)
+    x = [[0] * dataset_size for _ in range(dataset_size)]
+
+    """
+    Levenshtein distance calculation
+    """
+    max_dist = -1
+    for i in range(dataset_size):
+        s1 = ""
+        for column_name in columns:
+            s1 += remove_double_letters(data.iloc[i][column_name])
+
+        for j in range(i + 1, dataset_size):
+            s2 = ""
+            for column_name in columns:
+                s2 += remove_double_letters(data.iloc[j][column_name])
+
+            d = edit_distance(s1, s2)
+            if d > max_dist:
+                max_dist = d
+            x[i][j] = d
+            x[j][i] = d
+
+    print("Levenshtein distances have been calculated")
+    """
+    Levenshtein distance normalization
+    """
+    if max_dist == 0:
+        return x
+    for i in range(dataset_size):
+        x[i] = list(map(lambda y: (max_dist - y) / max_dist, x[i]))
+        x[i][i] = 0
+
+    print("Normalization has been done")
+    return x

@@ -1,5 +1,5 @@
 import pandas as pd
-import random
+import random, os
 from math import ceil
 
 
@@ -44,31 +44,47 @@ def add_mistakes(x, columns, fracs):
     return x
 
 
-data = pd.read_csv('original/data_1.csv')
-N = 500
-data = data.sample(N)
-extended_data = duplicate_rows(data, rng=2, frac=0.3)
-
-extended_data.to_csv('extended/data_{0}.csv'.format(N), index=False)
-
+N = 100
 fracs = [0.3, 0.3, 0.3]
 columns = ["first_name", "last_name", "father"]
-changed_data = add_mistakes(extended_data, columns, fracs)
 
-changed_data.to_csv('ready/data_{0}.csv'.format(N), index=False)
+data_folder_path = 'ready/{0}'.format(N)
+if not os.path.exists(data_folder_path):
+    os.mkdir(data_folder_path)
 
-"""
-Duplicates search
-"""
-changed_data = changed_data.reset_index(drop=True)
-truth = {}
-for i, row in changed_data.iterrows():
-    original_id = row['original_id']
-    if original_id in truth:
-        truth[original_id].append(i)
-    else:
-        truth[original_id] = [i]
+duplicates_folder_path = 'true_duplicates/{0}'.format(N)
+if not os.path.exists(duplicates_folder_path):
+    os.mkdir(duplicates_folder_path)
 
-with open('true_duplicates/data_{0}.txt'.format(N), 'w') as f:
-    for k, v in truth.items():
-        f.write(str(v) + '\n')
+document_cnt = 0
+
+for original_data_number in range(2):
+    full_data = pd.read_csv('original/data_{0}.csv'.format(original_data_number))
+    for i in range(2):
+
+        data = full_data.sample(N)
+        extended_data = duplicate_rows(data, rng=2, frac=0.3)
+
+        changed_data = add_mistakes(extended_data, columns, fracs)
+
+        full_path = os.path.join(data_folder_path, 'data_{0}.csv'.format(document_cnt))
+        changed_data.to_csv(full_path, index=False)
+
+        """
+        Duplicates search
+        """
+        changed_data = changed_data.reset_index(drop=True)
+        truth = {}
+        for j, row in changed_data.iterrows():
+            original_id = row['original_id']
+            if original_id in truth:
+                truth[original_id].append(j)
+            else:
+                truth[original_id] = [j]
+
+        full_path = os.path.join(duplicates_folder_path, 'data_{0}.txt'.format(document_cnt))
+        with open(full_path, 'w') as f:
+            for k, v in truth.items():
+                f.write(str(v) + '\n')
+
+        document_cnt += 1
