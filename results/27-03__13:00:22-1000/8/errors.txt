@@ -1,0 +1,21 @@
+Error 1:
+Predicted: {424, 84}
+	424: Diiana Butler | David
+	84: Diana Burke | David
+True: {84}
+	84: Diana Burke | David
+
+Error 2:
+Predicted: {773, 438}
+	773: Karen Rodriguez | Carlos
+	438: Karen Roodriguez | Carlos
+True: {438}
+	438: Karen Roodriguez | Carlos
+
+Error 3:
+Predicted: {1059, 907}
+	1059: Joe Bennett | Jimmy
+	907: Jooe Bennett | Joe
+True: {907}
+	907: Jooe Bennett | Joe
+

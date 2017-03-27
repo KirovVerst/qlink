@@ -1,0 +1,23 @@
+Error 1:
+Predicted: {631, 471}
+	631: Tdd Warrd | Jerry
+	471: Tdd Moore | Jerry
+True: {471}
+	471: Tdd Moore | Jerry
+
+Error 2:
+Predicted: {1274, 531}
+	1274: Phillp James | Adam
+	531: Phillip James | Adam
+True: {531}
+	531: Phillip James | Adam
+
+Error 3:
+Predicted: {737, 1138, 871}
+	737: Jennifer Rose | Raymonnd
+	1138: Jennifer Wood | Raaymond
+	871: Jennifer Roose | Raymond
+True: {737, 871}
+	737: Jennifer Rose | Raymonnd
+	871: Jennifer Roose | Raymond
+

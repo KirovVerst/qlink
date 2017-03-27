@@ -1,0 +1,23 @@
+Error 1:
+Predicted: {3, 516, 1222}
+	3: Rose Petersoon | Phillip
+	516: Rse Peterson | Phillip
+	1222: ean Peterson | Philip
+True: {3, 516}
+	3: Rose Petersoon | Phillip
+	516: Rse Peterson | Phillip
+
+Error 2:
+Predicted: {1123, 895}
+	1123: Harry WWatson | William
+	895: Hary Hansen | William
+True: {895}
+	895: Hary Hansen | William
+
+Error 3:
+Predicted: {1004}
+	1004: Rachl arroll | Lawrene
+True: {1257, 1004}
+	1257: Rachel Carroll | Lwrence
+	1004: Rachl arroll | Lawrene
+

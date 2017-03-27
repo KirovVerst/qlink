@@ -12,7 +12,7 @@ LEVEL = 0.85
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
-FOLDER_PATH = 'results/{0}-{1}/'.format(START_TIME_STR, INITIAL_DATA_SIZE)
+FOLDER_PATH = 'logs/{0}-{1}/'.format(START_TIME_STR, INITIAL_DATA_SIZE)
 os.mkdir(FOLDER_PATH)  # TODO: try-catch
 total_time = datetime.timedelta()
 total_number_error = 0
@@ -38,7 +38,7 @@ def func(document_index):
     n_errors, errors = error_number(truth, results)
     # print("Error number has been calculated")
     """
-    Write the results
+    Write the logs
     """
     document_folder_path = os.path.join(FOLDER_PATH, str(document_index))
     os.mkdir(document_folder_path)  # TODO: try-catch
