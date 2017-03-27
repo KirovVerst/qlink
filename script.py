@@ -6,9 +6,9 @@ from metrics import error_number, edit_distance_matrix
 from duplicate_searching import get_duplicates
 from result_saving import write_meta_data, write_errors
 
-INITIAL_DATA_SIZE = 1000
-DOCUMENT_NUMBER = 12
-LEVEL = 0.85
+INITIAL_DATA_SIZE = 100
+DOCUMENT_NUMBER = 1
+LEVEL = 0.80
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
@@ -23,7 +23,7 @@ def func(document_index):
     # print("{0} document".format(document_index + 1))
     data = pd.read_csv('data/ready/{0}/data_{1}.csv'.format(INITIAL_DATA_SIZE, document_index))
 
-    x = edit_distance_matrix(data, columns=['first_name', 'last_name', 'father'])
+    x, max_dist = edit_distance_matrix(data, columns=['first_name', 'last_name', 'father'])
 
     results = get_duplicates(x, LEVEL)
     """
@@ -35,7 +35,7 @@ def func(document_index):
             arr = ast.literal_eval(line[:-1])
             truth.append(arr)
 
-    n_errors, errors = error_number(truth, results)
+    number_of_errors, errors = error_number(truth, results)
     # print("Error number has been calculated")
     """
     Write the logs
@@ -45,9 +45,18 @@ def func(document_index):
 
     write_errors(document_folder_path, data=data, errors=errors)
     delta_time = datetime.datetime.now() - current_time
-    write_meta_data(document_folder_path, len(data), n_errors, delta_time)
+
+    local_meta_data = {
+        'datset_size': len(data),
+        'number_of_errors': number_of_errors,
+        'delta_time': str(delta_time),
+        'max_dist': max_dist,
+        'threshold': LEVEL
+    }
+    log_path = os.path.join(document_folder_path, 'log.json')
+    write_meta_data(log_path, local_meta_data)
     print("Dataset {0} is ready.".format(document_index + 1))
-    return n_errors, delta_time
+    return number_of_errors, delta_time
 
 
 with Pool() as p:
@@ -57,14 +66,11 @@ for errors, time in results:
     total_time += time
     total_number_error += errors
 
-with open(os.path.join(FOLDER_PATH, 'meta.txt'), 'w') as f:
-    f.write("Dataset count: {0}\n".format(DOCUMENT_NUMBER))
-    f.write("Initial dataset size: {0}\n".format(INITIAL_DATA_SIZE))
-    f.write("Average time: {0}\n".format(total_time / DOCUMENT_NUMBER))
-
-    e = total_number_error / DOCUMENT_NUMBER
-
-    f.write("Average error number: {0}\n".format(total_number_error / DOCUMENT_NUMBER))
-
-    t = "Total time: {0}".format(datetime.datetime.now() - START_TIME)
-    f.write(t)
+meta_data = {
+    "number_of_datasets": DOCUMENT_NUMBER,
+    "init_dataset_size": INITIAL_DATA_SIZE,
+    "average_time": str(total_time / DOCUMENT_NUMBER),
+    "average_number_of_errors": total_number_error / DOCUMENT_NUMBER,
+    "total_time": str(datetime.datetime.now() - START_TIME)
+}
+write_meta_data(os.path.join(FOLDER_PATH, 'meta.json'), meta_data)

@@ -82,6 +82,12 @@ def error_number(true, predict):
 
 
 def edit_distance_matrix(data, columns):
+    """
+    
+    :param data: 
+    :param columns: 
+    :return: 
+    """
     dataset_size = len(data)
     x = [[0] * dataset_size for _ in range(dataset_size)]
 
@@ -116,4 +122,4 @@ def edit_distance_matrix(data, columns):
         x[i][i] = 0
 
     # print("Normalization has been done")
-    return x
+    return x, max_dist
