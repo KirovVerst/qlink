@@ -21,5 +21,5 @@ def get_duplicates(data):
         if i not in processed:
             duplicates = [i] + rec(i, data)
             results.append(duplicates)
-    print("Duplicates have been found")
+    # print("Duplicates have been found")
     return results

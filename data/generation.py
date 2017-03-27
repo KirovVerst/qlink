@@ -44,7 +44,7 @@ def add_mistakes(x, columns, fracs):
     return x
 
 
-N = 100
+N = 1000
 fracs = [0.3, 0.3, 0.3]
 columns = ["first_name", "last_name", "father"]
 
@@ -58,7 +58,7 @@ if not os.path.exists(duplicates_folder_path):
 
 document_cnt = 0
 
-for original_data_number in range(2):
+for original_data_number in range(1):
     full_data = pd.read_csv('original/data_{0}.csv'.format(original_data_number))
     for i in range(2):
 

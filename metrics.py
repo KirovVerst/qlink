@@ -105,7 +105,7 @@ def edit_distance_matrix(data, columns):
             x[i][j] = d
             x[j][i] = d
 
-    print("Levenshtein distances have been calculated")
+    # print("Levenshtein distances have been calculated")
     """
     Levenshtein distance normalization
     """
@@ -115,5 +115,5 @@ def edit_distance_matrix(data, columns):
         x[i] = list(map(lambda y: (max_dist - y) / max_dist, x[i]))
         x[i][i] = 0
 
-    print("Normalization has been done")
+    # print("Normalization has been done")
     return x
