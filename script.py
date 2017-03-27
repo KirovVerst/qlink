@@ -6,9 +6,9 @@ from metrics import error_number, edit_distance_matrix
 from duplicate_searching import get_duplicates
 from result_saving import write_meta_data, write_errors
 
-INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 4
-LEVEL = 0.865
+INITIAL_DATA_SIZE = 1000
+DOCUMENT_NUMBER = 12
+LEVEL = 0.85
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
@@ -25,7 +25,7 @@ def func(document_index):
 
     x = edit_distance_matrix(data, columns=['first_name', 'last_name', 'father'])
 
-    results = get_duplicates(x)
+    results = get_duplicates(x, LEVEL)
     """
     Error number calculation
     """
@@ -46,7 +46,7 @@ def func(document_index):
     write_errors(document_folder_path, data=data, errors=errors)
     delta_time = datetime.datetime.now() - current_time
     write_meta_data(document_folder_path, len(data), n_errors, delta_time)
-    # print("Results have been saved\n")
+    print("Dataset {0} is ready.".format(document_index + 1))
     return n_errors, delta_time
 
 
@@ -61,6 +61,10 @@ with open(os.path.join(FOLDER_PATH, 'meta.txt'), 'w') as f:
     f.write("Dataset count: {0}\n".format(DOCUMENT_NUMBER))
     f.write("Initial dataset size: {0}\n".format(INITIAL_DATA_SIZE))
     f.write("Average time: {0}\n".format(total_time / DOCUMENT_NUMBER))
+
+    e = total_number_error / DOCUMENT_NUMBER
+
     f.write("Average error number: {0}\n".format(total_number_error / DOCUMENT_NUMBER))
 
-print("Total time: {0}".format(datetime.datetime.now() - START_TIME))
+    t = "Total time: {0}".format(datetime.datetime.now() - START_TIME)
+    f.write(t)

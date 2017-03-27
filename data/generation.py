@@ -1,13 +1,14 @@
 import pandas as pd
 import random, os
 from math import ceil
+from multiprocessing import Pool, current_process
 
 
 def duplicate_rows(data, rng=1, frac=0.0):
     l = [data]
     extra = data
     for i in range(rng):
-        extra = extra.sample(frac=frac)
+        extra = extra.sample(frac=frac, random_state=42)
         l.append(extra)
     return pd.concat(l)
 
@@ -47,6 +48,8 @@ def add_mistakes(x, columns, fracs):
 N = 1000
 fracs = [0.3, 0.3, 0.3]
 columns = ["first_name", "last_name", "father"]
+DATASET_NUMBER_PER_DOCUMENT = 1
+RAW_DOCUMENT_NUMBER = 12
 
 data_folder_path = 'ready/{0}'.format(N)
 if not os.path.exists(data_folder_path):
@@ -56,35 +59,37 @@ duplicates_folder_path = 'true_duplicates/{0}'.format(N)
 if not os.path.exists(duplicates_folder_path):
     os.mkdir(duplicates_folder_path)
 
-document_cnt = 0
 
-for original_data_number in range(1):
-    full_data = pd.read_csv('original/data_{0}.csv'.format(original_data_number))
-    for i in range(2):
+def func(dataset_id):
+    raw_doc_id = dataset_id // DATASET_NUMBER_PER_DOCUMENT
+    s = 'original/data_{0}.csv'.format(raw_doc_id)
+    print(s)
+    full_data = pd.read_csv(s)
+    data = full_data.sample(N, random_state=dataset_id)
+    extended_data = duplicate_rows(data, rng=2, frac=0.3)
 
-        data = full_data.sample(N)
-        extended_data = duplicate_rows(data, rng=2, frac=0.3)
+    changed_data = add_mistakes(extended_data, columns, fracs)
 
-        changed_data = add_mistakes(extended_data, columns, fracs)
+    full_path = os.path.join(data_folder_path, 'data_{0}.csv'.format(dataset_id))
+    changed_data.to_csv(full_path, index=False)
 
-        full_path = os.path.join(data_folder_path, 'data_{0}.csv'.format(document_cnt))
-        changed_data.to_csv(full_path, index=False)
+    """
+    Duplicates search
+    """
+    changed_data = changed_data.reset_index(drop=True)
+    truth = {}
+    for j, row in changed_data.iterrows():
+        original_id = row['original_id']
+        if original_id in truth:
+            truth[original_id].append(j)
+        else:
+            truth[original_id] = [j]
 
-        """
-        Duplicates search
-        """
-        changed_data = changed_data.reset_index(drop=True)
-        truth = {}
-        for j, row in changed_data.iterrows():
-            original_id = row['original_id']
-            if original_id in truth:
-                truth[original_id].append(j)
-            else:
-                truth[original_id] = [j]
+    full_path = os.path.join(duplicates_folder_path, 'data_{0}.txt'.format(dataset_id))
+    with open(full_path, 'w') as f:
+        for k, v in truth.items():
+            f.write(str(v) + '\n')
 
-        full_path = os.path.join(duplicates_folder_path, 'data_{0}.txt'.format(document_cnt))
-        with open(full_path, 'w') as f:
-            for k, v in truth.items():
-                f.write(str(v) + '\n')
 
-        document_cnt += 1
+with Pool(1) as p:
+    p.map(func, list(range(RAW_DOCUMENT_NUMBER * DATASET_NUMBER_PER_DOCUMENT)))

@@ -1,13 +1,10 @@
-LEVEL = 0.80
-
-
-def get_duplicates(data):
+def get_duplicates(data, level):
     def rec(i, x):
         processed.add(i)
         max_index = -1
         max_value = 0
         for (j, e) in enumerate(x[i]):
-            if e > LEVEL and j not in processed and e > max_value:
+            if e > level and j not in processed and e > max_value:
                 max_value = e
                 max_index = j
         if max_index != -1:
