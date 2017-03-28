@@ -6,7 +6,10 @@ class Logger(object):
         if dataset_index is None:
             self.folder_path = folder_path
         else:
+            if not os.path.exists(folder_path):
+                os.mkdir(folder_path)
             self.folder_path = os.path.join(folder_path, str(dataset_index))
+
         if not os.path.exists(self.folder_path):
             os.mkdir(self.folder_path)
 
