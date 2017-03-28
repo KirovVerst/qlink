@@ -1,7 +1,7 @@
 import datetime, os
 from multiprocessing import Pool
 
-from modules.data_receiving import Data
+from modules.dataset_receiving import Data
 from modules.duplicate_searching import predict_duplicates, get_differences
 from modules.dataset_processing import edit_distance_matrix
 
@@ -23,7 +23,7 @@ def func(document_index):
     current_time = datetime.datetime.now()
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
-    data = Data(type="mockaroo", kwargs=data_kwargs)
+    data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
     matrix = edit_distance_matrix(data.df, column_names=['first_name', 'last_name', 'father'])
 
