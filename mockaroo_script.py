@@ -1,10 +1,11 @@
-import datetime
-import os
+import datetime, os
 from multiprocessing import Pool
-from metrics import get_errors, edit_distance_matrix
-from duplicate_searching import predict_duplicates
-from result_saving import Logger
-from data_receiving import Data
+
+from modules.data_receiving import Data
+from modules.duplicate_searching import predict_duplicates, get_differences
+from modules.dataset_processing import edit_distance_matrix
+
+from modules.result_saving import Logger
 
 INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 1
@@ -12,9 +13,8 @@ LEVEL = 0.80
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
-FOLDER_PATH = 'logs/{0}-{1}/'.format(START_TIME_STR, INITIAL_DATA_SIZE)
+FOLDER_PATH = os.path.join('logs', '{0}-{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
 
-os.mkdir(FOLDER_PATH)
 total_time = datetime.timedelta()
 total_number_of_errors = 0
 
@@ -29,10 +29,8 @@ def func(document_index):
 
     predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)
 
-    errors = get_errors(data.true_duplicates['items'], predicted_duplicates['items'])
-    """
-    Write the logs
-    """
+    errors = get_differences(data.true_duplicates['items'], predicted_duplicates['items'])
+
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
     logger.save_errors(df=data.df, errors=errors['items'])

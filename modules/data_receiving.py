@@ -1,7 +1,7 @@
 import os, json
 from pandas import read_csv
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_TYPES = {"mockaroo": os.path.join(BASE_DIR, "data", "mockaroo")}
 
 

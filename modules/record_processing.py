@@ -10,3 +10,8 @@ def remove_double_letters(s):
     group = itertools.groupby(s)
     res = ''.join(c for c, _ in group)
     return res
+
+
+"""
+Phonetic algorithms are coming ... 
+"""
