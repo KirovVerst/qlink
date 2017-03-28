@@ -4,10 +4,10 @@ from multiprocessing import Pool
 from metrics import get_errors, edit_distance_matrix
 from duplicate_searching import predict_duplicates
 from result_saving import Logger
-from data_recieving import get_dataframe, get_true_duplicates
+from data_receiving import Data
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 12
+DOCUMENT_NUMBER = 1
 LEVEL = 0.80
 
 START_TIME = datetime.datetime.now()
@@ -23,26 +23,26 @@ def func(document_index):
     current_time = datetime.datetime.now()
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
-    data = get_dataframe(kwargs=data_kwargs)
+    data = Data(type="mockaroo", kwargs=data_kwargs)
 
-    matrix = edit_distance_matrix(data, column_names=['first_name', 'last_name', 'father'])
+    matrix = edit_distance_matrix(data.df, column_names=['first_name', 'last_name', 'father'])
 
     predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)
 
-    true_duplicates = get_true_duplicates(kwargs=data_kwargs)
-
-    errors = get_errors(true_duplicates['items'], predicted_duplicates['items'])
+    errors = get_errors(data.true_duplicates['items'], predicted_duplicates['items'])
     """
     Write the logs
     """
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    logger.save_errors(df=data, errors=errors['items'])
+    logger.save_errors(df=data.df, errors=errors['items'])
+
+    logger.save_duplicates(predicted_duplicates)
 
     time_delta = datetime.datetime.now() - current_time
 
     local_meta_data = {
-        'dataset_size': len(data),
+        'dataset_size': len(data.df),
         'number_of_errors': errors['number_of_errors'],
         'time_delta': str(time_delta),
         'max_dist': matrix['max_dist'],
@@ -68,4 +68,4 @@ meta_data = {
     "total_time": str(datetime.datetime.now() - START_TIME)
 }
 logger = Logger(FOLDER_PATH)
-logger.save_data(meta_data=meta_data)
+logger.save_data(data=meta_data)

@@ -10,10 +10,9 @@ class Logger(object):
         if not os.path.exists(self.folder_path):
             os.mkdir(self.folder_path)
 
-    def save_duplicates(self, results):
-        with open(os.path.join(self.folder_path, 'duplicates.txt'), 'w') as f:
-            for group in results:
-                f.write("{0}\n".format(group))
+    def save_duplicates(self, duplicates):
+        with open(os.path.join(self.folder_path, 'duplicates.json'), 'w') as f:
+            json.dump(duplicates, f)
 
     def save_data(self, data, file_path=None):
 
@@ -40,7 +39,7 @@ class Logger(object):
         with open(os.path.join(self.folder_path, "errors.txt"), 'w') as f:
             for i, d in enumerate(errors):
                 true_duplicates = set(d['true'])
-                pred_duplicates = set(d['pred'])
+                pred_duplicates = set(d['predict'])
 
                 string_dict = dict()
 
@@ -49,7 +48,7 @@ class Logger(object):
                 for index in pred_duplicates.union(true_duplicates):
                     s = [df.iloc[index]['first_name'], df.iloc[index]['last_name'], df.iloc[index]['father']]
                     string_dict[index] = " ".join(s)
-                f.write("Predicted: {0}\n".format(str(d['pred'])))
+                f.write("Predicted: {0}\n".format(str(d['predict'])))
                 for index in pred_duplicates:
                     f.write("\t{0}: {1}\n".format(index, string_dict[index]))
                 f.write("True: {0}\n".format(str(d['true'])))
