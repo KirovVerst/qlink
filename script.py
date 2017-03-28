@@ -1,53 +1,38 @@
 import pandas as pd
-import datetime, ast
+import datetime
 import os, json
 from multiprocessing import Pool
-from metrics import error_number, edit_distance_matrix
-from duplicate_searching import get_duplicates
+from metrics import get_errors, edit_distance_matrix
+from duplicate_searching import predict_duplicates
 from result_saving import write_meta_data, write_errors
+from data_recieving import get_dataframe, get_true_duplicates
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 1
+DOCUMENT_NUMBER = 12
 LEVEL = 0.80
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
 FOLDER_PATH = 'logs/{0}-{1}/'.format(START_TIME_STR, INITIAL_DATA_SIZE)
-try:
-    os.mkdir(FOLDER_PATH)
-except Exception as e:
-    print(e)
-    exit()
 
+os.mkdir(FOLDER_PATH)
 total_time = datetime.timedelta()
 total_number_of_errors = 0
 
 
 def func(document_index):
     current_time = datetime.datetime.now()
-    # print("{0} document".format(document_index + 1))
-    try:
-        data = pd.read_csv('data/ready/{0}/data_{1}.csv'.format(INITIAL_DATA_SIZE, document_index))
-    except Exception as e:
-        print(e)
-        exit()
+    data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
-    x, max_dist = edit_distance_matrix(data, columns=['first_name', 'last_name', 'father'])
+    data = get_dataframe(kwargs=data_kwargs)
 
-    results = get_duplicates(x, LEVEL)
-    """
-    Error number calculation
-    """
-    truth = {'values': []}
-    try:
-        file_path = 'data/true_duplicates/{0}/data_{1}.json'.format(INITIAL_DATA_SIZE, document_index)
-        with open(file_path, 'r') as f:
-            truth = json.load(f)
-    except Exception as e:
-        print(e)
+    matrix = edit_distance_matrix(data, column_names=['first_name', 'last_name', 'father'])
 
-    number_of_errors, errors = error_number(truth['values'], results)
-    # print("Error number has been calculated")
+    predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)
+
+    true_duplicates = get_true_duplicates(kwargs=data_kwargs)
+
+    errors = get_errors(true_duplicates['items'], predicted_duplicates['items'])
     """
     Write the logs
     """
@@ -55,20 +40,19 @@ def func(document_index):
 
     os.mkdir(document_folder_path)  # TODO: try-catch
 
-    write_errors(document_folder_path, data=data, errors=errors)
-    delta_time = datetime.datetime.now() - current_time
+    write_errors(document_folder_path, df=data, errors=errors['items'])
+    time_delta = datetime.datetime.now() - current_time
 
     local_meta_data = {
-        'datset_size': len(data),
-        'number_of_errors': number_of_errors,
-        'delta_time': str(delta_time),
-        'max_dist': max_dist,
+        'dataset_size': len(data),
+        'number_of_errors': errors['number_of_errors'],
+        'time_delta': str(time_delta),
+        'max_dist': matrix['max_dist'],
         'threshold': LEVEL
     }
-    log_path = os.path.join(document_folder_path, 'log.json')
-    write_meta_data(log_path, local_meta_data)
+    write_meta_data(os.path.join(document_folder_path, "logs.json"), local_meta_data)
     print("Dataset {0} is ready.".format(document_index + 1))
-    return number_of_errors, delta_time
+    return errors['number_of_errors'], time_delta
 
 
 with Pool() as p:

@@ -1,7 +1,7 @@
 from preprocessing import remove_double_letters
 
 
-def edit_distance(a, b):
+def levenshtein_edit_distance(a, b):
     """Calculates the Levenshtein distance between a and b."""
     n, m = len(a), len(b)
     if n > m:
@@ -20,10 +20,9 @@ def edit_distance(a, b):
     return current_row[n]
 
 
-def error_number(true, predict):
+def get_errors(true, predict):
     """
-    There is the set of objects. "true" is the set partition. "predict" is another one.
-    Function calculates the number of differences between this partitions.
+    Function calculates the differences between two true and predicted partitions.
     Example 1: 
         true = [[1, 2]]
         predict = [[1], [2]]
@@ -31,7 +30,11 @@ def error_number(true, predict):
     :param true: list of lists 
     :param predict: list of lists
     :param N: total number of unique objects
-    :return: num_error, errors
+    :return: 
+    {
+        'items': [{true: [int], 'predict': [int]}],
+        'number_of_errors': int
+    }
     """
 
     result = 0
@@ -64,7 +67,7 @@ def error_number(true, predict):
         if len(s1.intersection(s2)):
             d += len(s1.symmetric_difference(s2))
             if d > 0:
-                errors.append(dict(true=s1, pred=s2))
+                errors.append(dict(true=s1, predict=s2))
             i1 += 1
             i2 += 1
 
@@ -78,48 +81,61 @@ def error_number(true, predict):
                 i1 += 1
         result += d
 
-    return result / 2, errors
+    return {
+        'items': errors,
+        'number_of_errors': result / 2
+    }
 
 
-def edit_distance_matrix(data, columns):
+def edit_distance_matrix(df, column_names, func=levenshtein_edit_distance, normalize=True):
     """
     
-    :param data: 
-    :param columns: 
+    :param df: pandas dataframe
+    :param column_names: list(str). list of column names in df
+    :param func: function that calculates the edit distance between two strings, must be called with two str args.
+    :param normalize: bool.
     :return: 
+    {
+        values: list of list of int. [[12, 34], [34, 45]]. shape = N*N, where N is len(df).
+        max_dist: int. max distance that is contained in the matrix
+    }
     """
-    dataset_size = len(data)
-    x = [[0] * dataset_size for _ in range(dataset_size)]
+    df_size = len(df)
+    x = [[0] * df_size for _ in range(df_size)]
 
     """
     Levenshtein distance calculation
     """
     max_dist = -1
-    for i in range(dataset_size):
+    for i in range(df_size):
         s1 = ""
-        for column_name in columns:
-            s1 += remove_double_letters(data.iloc[i][column_name])
+        for column_name in column_names:
+            s1 += remove_double_letters(df.iloc[i][column_name])
 
-        for j in range(i + 1, dataset_size):
+        for j in range(i + 1, df_size):
             s2 = ""
-            for column_name in columns:
-                s2 += remove_double_letters(data.iloc[j][column_name])
+            for column_name in column_names:
+                s2 += remove_double_letters(df.iloc[j][column_name])
 
-            d = edit_distance(s1, s2)
+            d = func(s1, s2)
             if d > max_dist:
                 max_dist = d
             x[i][j] = d
             x[j][i] = d
 
-    # print("Levenshtein distances have been calculated")
     """
     Levenshtein distance normalization
     """
-    if max_dist == 0:
-        return x
-    for i in range(dataset_size):
-        x[i] = list(map(lambda y: (max_dist - y) / max_dist, x[i]))
-        x[i][i] = 0
-
-    # print("Normalization has been done")
-    return x, max_dist
+    if normalize:
+        if max_dist != 0:
+            for i in range(df_size):
+                x[i] = list(map(lambda y: (max_dist - y) / max_dist, x[i]))
+                x[i][i] = 0
+        else:
+            x = [[1] * df_size for _ in range(df_size)]
+            for i in range(df_size):
+                x[i][i] = 0
+    return {
+        'values': x,
+        'max_dist': max_dist
+    }

@@ -1,4 +1,14 @@
-def get_duplicates(data, level):
+def predict_duplicates(data, level):
+    """
+    
+    :param data: [[float], [float] ]
+    :param level: float 
+    :return: 
+    {
+        'items': [[int, ], [int, ]]
+    }
+    """
+
     def rec(i, x):
         processed.add(i)
         max_index = -1
@@ -18,5 +28,4 @@ def get_duplicates(data, level):
         if i not in processed:
             duplicates = [i] + rec(i, data)
             results.append(duplicates)
-    # print("Duplicates have been found")
-    return results
+    return dict(items=results)
