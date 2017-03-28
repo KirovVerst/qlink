@@ -13,15 +13,24 @@ LEVEL = 0.80
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
 FOLDER_PATH = 'logs/{0}-{1}/'.format(START_TIME_STR, INITIAL_DATA_SIZE)
-os.mkdir(FOLDER_PATH)  # TODO: try-catch
+try:
+    os.mkdir(FOLDER_PATH)
+except Exception as e:
+    print(e)
+    exit()
+
 total_time = datetime.timedelta()
-total_number_error = 0
+total_number_of_errors = 0
 
 
 def func(document_index):
     current_time = datetime.datetime.now()
     # print("{0} document".format(document_index + 1))
-    data = pd.read_csv('data/ready/{0}/data_{1}.csv'.format(INITIAL_DATA_SIZE, document_index))
+    try:
+        data = pd.read_csv('data/ready/{0}/data_{1}.csv'.format(INITIAL_DATA_SIZE, document_index))
+    except Exception as e:
+        print(e)
+        exit()
 
     x, max_dist = edit_distance_matrix(data, columns=['first_name', 'last_name', 'father'])
 
@@ -30,10 +39,13 @@ def func(document_index):
     Error number calculation
     """
     truth = []
-    with open('data/true_duplicates/{0}/data_{1}.txt'.format(INITIAL_DATA_SIZE, document_index), 'r') as f:
-        for line in f.readlines():
-            arr = ast.literal_eval(line[:-1])
-            truth.append(arr)
+    try:
+        with open('data/true_duplicates/{0}/dat_{1}.txt'.format(INITIAL_DATA_SIZE, document_index), 'r') as f:
+            for line in f.readlines():
+                arr = ast.literal_eval(line[:-1])
+                truth.append(arr)
+    except Exception as e:
+        print(e)
 
     number_of_errors, errors = error_number(truth, results)
     # print("Error number has been calculated")
@@ -41,6 +53,7 @@ def func(document_index):
     Write the logs
     """
     document_folder_path = os.path.join(FOLDER_PATH, str(document_index))
+
     os.mkdir(document_folder_path)  # TODO: try-catch
 
     write_errors(document_folder_path, data=data, errors=errors)
@@ -64,13 +77,13 @@ with Pool() as p:
 
 for errors, time in results:
     total_time += time
-    total_number_error += errors
+    total_number_of_errors += errors
 
 meta_data = {
     "number_of_datasets": DOCUMENT_NUMBER,
     "init_dataset_size": INITIAL_DATA_SIZE,
     "average_time": str(total_time / DOCUMENT_NUMBER),
-    "average_number_of_errors": total_number_error / DOCUMENT_NUMBER,
+    "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
     "total_time": str(datetime.datetime.now() - START_TIME)
 }
 write_meta_data(os.path.join(FOLDER_PATH, 'meta.json'), meta_data)
