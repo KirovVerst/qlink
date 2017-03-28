@@ -1,10 +1,9 @@
-import pandas as pd
 import datetime
-import os, json
+import os
 from multiprocessing import Pool
 from metrics import get_errors, edit_distance_matrix
 from duplicate_searching import predict_duplicates
-from result_saving import write_meta_data, write_errors
+from result_saving import Logger
 from data_recieving import get_dataframe, get_true_duplicates
 
 INITIAL_DATA_SIZE = 100
@@ -36,11 +35,10 @@ def func(document_index):
     """
     Write the logs
     """
-    document_folder_path = os.path.join(FOLDER_PATH, str(document_index))
+    logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    os.mkdir(document_folder_path)  # TODO: try-catch
+    logger.save_errors(df=data, errors=errors['items'])
 
-    write_errors(document_folder_path, df=data, errors=errors['items'])
     time_delta = datetime.datetime.now() - current_time
 
     local_meta_data = {
@@ -50,12 +48,12 @@ def func(document_index):
         'max_dist': matrix['max_dist'],
         'threshold': LEVEL
     }
-    write_meta_data(os.path.join(document_folder_path, "logs.json"), local_meta_data)
+    logger.save_data(data=local_meta_data)
     print("Dataset {0} is ready.".format(document_index + 1))
     return errors['number_of_errors'], time_delta
 
 
-with Pool() as p:
+with Pool(1) as p:
     results = p.map(func, list(range(DOCUMENT_NUMBER)))
 
 for errors, time in results:
@@ -69,4 +67,5 @@ meta_data = {
     "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
     "total_time": str(datetime.datetime.now() - START_TIME)
 }
-write_meta_data(os.path.join(FOLDER_PATH, 'meta.json'), meta_data)
+logger = Logger(FOLDER_PATH)
+logger.save_data(meta_data=meta_data)

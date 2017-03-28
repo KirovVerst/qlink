@@ -1,53 +1,10 @@
 import pandas as pd
-import random, os, json
-from math import ceil
-from multiprocessing import Pool, current_process
+import os, json
+from multiprocessing import Pool
 from collections import defaultdict
+from data.mockaroo.mistake_generation import duplicate_rows, add_mistakes
 
-
-def duplicate_rows(data, rng=1, frac=0.0):
-    l = [data]
-    extra = data
-    for i in range(rng):
-        extra = extra.sample(frac=frac, random_state=42)
-        l.append(extra)
-    return pd.concat(l)
-
-
-def add_letter(s):
-    position = random.randrange(len(s))
-    return s[:position] + s[position] + s[position:]
-
-
-def remove_letter(s):
-    position = random.randint(0, len(s) - 1)
-    return s[:position] + s[position + 1:]
-
-
-def make_random_mistake(s):
-    return add_letter(s) if random.random() > 0.5 else remove_letter(s)
-
-
-def add_mistakes(x, columns, fracs):
-    """
-
-    :param x: pandas dataframe
-    :param columns: list column names. ["first_name", "second_name"]
-    :param fracs: list of fractions. Fractions' and columns' lists must have the same length. [0.1, 0.05]
-    :return: pandas dataframe
-    """
-    n = len(x)
-    counts = [ceil(x * n) for x in fracs]
-    for i in range(len(columns)):
-        ex = x.head(counts[i])
-        ex[columns[i]] = ex[columns[i]].apply(make_random_mistake)
-        x = pd.concat([ex, x.iloc[counts[i]:]])
-        x = x.sample(frac=1)
-    return x
-
-
-fracs = [0.3, 0.3, 0.3]
-columns = ["first_name", "last_name", "father"]
+columns = dict(first_name=0.3, last_name=0.3, father=0.3)
 DATASET_NUMBER_PER_DOCUMENT = 1
 RAW_DOCUMENT_NUMBER = 12
 
@@ -68,7 +25,7 @@ for N in [100, 200, 1000]:
         data = full_data.sample(N, random_state=dataset_id)
         extended_data = duplicate_rows(data, rng=2, frac=0.3)
 
-        changed_data = add_mistakes(extended_data, columns, fracs)
+        changed_data = add_mistakes(extended_data, columns)
 
         full_path = os.path.join(data_folder_path, 'data_{0}.csv'.format(dataset_id))
         changed_data.to_csv(full_path, index=False)

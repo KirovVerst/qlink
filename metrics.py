@@ -1,4 +1,4 @@
-from preprocessing import remove_double_letters
+from record_processing import remove_double_letters
 
 
 def levenshtein_edit_distance(a, b):
