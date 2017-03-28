@@ -1,6 +1,6 @@
 import pandas as pd
 import datetime, ast
-import os
+import os, json
 from multiprocessing import Pool
 from metrics import error_number, edit_distance_matrix
 from duplicate_searching import get_duplicates
@@ -38,16 +38,15 @@ def func(document_index):
     """
     Error number calculation
     """
-    truth = []
+    truth = {'values': []}
     try:
-        with open('data/true_duplicates/{0}/dat_{1}.txt'.format(INITIAL_DATA_SIZE, document_index), 'r') as f:
-            for line in f.readlines():
-                arr = ast.literal_eval(line[:-1])
-                truth.append(arr)
+        file_path = 'data/true_duplicates/{0}/data_{1}.json'.format(INITIAL_DATA_SIZE, document_index)
+        with open(file_path, 'r') as f:
+            truth = json.load(f)
     except Exception as e:
         print(e)
 
-    number_of_errors, errors = error_number(truth, results)
+    number_of_errors, errors = error_number(truth['values'], results)
     # print("Error number has been calculated")
     """
     Write the logs

@@ -1,7 +1,8 @@
 import pandas as pd
-import random, os
+import random, os, json
 from math import ceil
 from multiprocessing import Pool, current_process
+from collections import defaultdict
 
 
 def duplicate_rows(data, rng=1, frac=0.0):
@@ -45,7 +46,7 @@ def add_mistakes(x, columns, fracs):
     return x
 
 
-N = 1000
+N = 200
 fracs = [0.3, 0.3, 0.3]
 columns = ["first_name", "last_name", "father"]
 DATASET_NUMBER_PER_DOCUMENT = 1
@@ -63,7 +64,6 @@ if not os.path.exists(duplicates_folder_path):
 def func(dataset_id):
     raw_doc_id = dataset_id // DATASET_NUMBER_PER_DOCUMENT
     s = 'original/data_{0}.csv'.format(raw_doc_id)
-    print(s)
     full_data = pd.read_csv(s)
     data = full_data.sample(N, random_state=dataset_id)
     extended_data = duplicate_rows(data, rng=2, frac=0.3)
@@ -77,18 +77,13 @@ def func(dataset_id):
     Duplicates search
     """
     changed_data = changed_data.reset_index(drop=True)
-    truth = {}
+    truth = defaultdict(list)
     for j, row in changed_data.iterrows():
-        original_id = row['original_id']
-        if original_id in truth:
-            truth[original_id].append(j)
-        else:
-            truth[original_id] = [j]
+        truth[row['original_id']].append(int(j))
 
-    full_path = os.path.join(duplicates_folder_path, 'data_{0}.txt'.format(dataset_id))
-    with open(full_path, 'w') as f:
-        for k, v in truth.items():
-            f.write(str(v) + '\n')
+    full_path = os.path.join(duplicates_folder_path, 'data_{0}.json'.format(dataset_id))
+    with open(full_path, 'w') as fp:
+        json.dump(dict(values=list(truth.values())), fp)
 
 
 with Pool(1) as p:
