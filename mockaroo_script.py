@@ -7,7 +7,7 @@ from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 2
+DOCUMENT_NUMBER = 4
 LEVEL = 0.865
 
 START_TIME = datetime.datetime.now()
@@ -25,7 +25,7 @@ def func(document_index):
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
     matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'])
-    matrix = matrix.get(njobs=1)
+    matrix = matrix.get()
 
     predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)
 
@@ -39,20 +39,21 @@ def func(document_index):
 
     time_delta = datetime.datetime.now() - current_time
 
-    local_meta_data = {
+    current_meta_data = {
         'dataset_size': len(data.df),
         'number_of_errors': errors['number_of_errors'],
         'time_delta': str(time_delta),
         'max_dist': matrix['max_dist'],
         'threshold': LEVEL
     }
-    logger.save_data(data=local_meta_data)
+    logger.save_data(data=current_meta_data)
     print("Dataset {0} is ready.".format(document_index + 1))
     return errors['number_of_errors'], time_delta
 
 
-with Pool(2) as p:
-    results = list(p.map(func, list(range(DOCUMENT_NUMBER))))
+results = []
+for i in range(DOCUMENT_NUMBER):
+    results.append(tuple(func(i)))
 
 for errors, time in results:
     total_time += time
@@ -63,7 +64,7 @@ meta_data = {
     "init_dataset_size": INITIAL_DATA_SIZE,
     "average_time": str(total_time / DOCUMENT_NUMBER),
     "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
-    "total_time": str(datetime.datetime.now() - START_TIME)
+    "total_time": str(datetime.datetime.now() - START_TIME),
 }
 logger = Logger(FOLDER_PATH)
 logger.save_data(data=meta_data)
