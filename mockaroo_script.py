@@ -2,7 +2,8 @@ import datetime, os
 from multiprocessing import Pool
 
 from modules.dataset_receiving import Data
-from modules.duplicate_searching import predict_duplicates, get_differences
+from modules.duplicate_searching import predict_duplicates
+from modules.result_estimation import get_differences
 from modules.dataset_processing import edit_distance_matrix
 
 from modules.result_saving import Logger
