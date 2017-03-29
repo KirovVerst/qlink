@@ -1,16 +1,14 @@
 import datetime, os
-from multiprocessing import Pool
-
+from pathos.multiprocessing import Pool
 from modules.dataset_receiving import Data
 from modules.duplicate_searching import predict_duplicates
 from modules.result_estimation import get_differences
-from modules.dataset_processing import edit_distance_matrix
-
+from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 1
-LEVEL = 0.80
+DOCUMENT_NUMBER = 2
+LEVEL = 0.865
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
@@ -26,7 +24,8 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = edit_distance_matrix(data.df, column_names=['first_name', 'last_name', 'father'])
+    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'])
+    matrix = matrix.get(njobs=1)
 
     predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)
 
@@ -52,8 +51,8 @@ def func(document_index):
     return errors['number_of_errors'], time_delta
 
 
-with Pool(1) as p:
-    results = p.map(func, list(range(DOCUMENT_NUMBER)))
+with Pool(2) as p:
+    results = list(p.map(func, list(range(DOCUMENT_NUMBER))))
 
 for errors, time in results:
     total_time += time

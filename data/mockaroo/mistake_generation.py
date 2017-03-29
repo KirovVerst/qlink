@@ -37,7 +37,7 @@ def add_mistakes(x, columns):
     for k in columns:
         columns[k] = ceil(columns[k] * n)
 
-    for column_name, count in columns:
+    for column_name, count in columns.items():
         ex = x.head(count)
         ex[column_name] = ex[column_name].apply(make_random_mistake)
         x = pd.concat([ex, x.iloc[count:]])

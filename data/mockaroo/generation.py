@@ -6,9 +6,9 @@ from data.mockaroo.mistake_generation import duplicate_rows, add_mistakes
 
 columns = dict(first_name=0.3, last_name=0.3, father=0.3)
 DATASET_NUMBER_PER_DOCUMENT = 1
-RAW_DOCUMENT_NUMBER = 12
+RAW_DOCUMENT_NUMBER = 1
 
-for N in [100, 200, 1000]:
+for N in [500]:
     data_folder_path = 'ready/{0}'.format(N)
     if not os.path.exists(data_folder_path):
         os.mkdir(data_folder_path)
@@ -43,5 +43,5 @@ for N in [100, 200, 1000]:
             json.dump(dict(items=list(truth.values())), fp)
 
 
-    with Pool(1) as p:
-        p.map(func, list(range(RAW_DOCUMENT_NUMBER * DATASET_NUMBER_PER_DOCUMENT)))
+    for i in range(RAW_DOCUMENT_NUMBER * DATASET_NUMBER_PER_DOCUMENT):
+        func(i)
