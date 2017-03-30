@@ -1,0 +1,36 @@
+Error 1:
+Predicted: {386, 230}
+	386: Harry Henry Juan
+	230: Earl Henry Juan
+True: {230}
+	230: Earl Henry Juan
+
+Error 2:
+Predicted: {241, 1019}
+	241: Mary Burton Lary
+	1019: arry Brton Jerry
+True: {241}
+	241: Mary Burton Lary
+
+Error 3:
+Predicted: {243, 1052}
+	243: Lillan Kelly Marttin
+	1052: Lisa Kelly Martin
+True: {243}
+	243: Lillan Kelly Marttin
+
+Error 4:
+Predicted: {1115, 526}
+	1115: Judith Roberts Shawn
+	526: Juith Robertson Sean
+True: {526}
+	526: Juith Robertson Sean
+
+Error 5:
+Predicted: {752, 1090, 1358}
+	752: Martn Greene Fred
+	1090: Maria GGreene Fred
+	1358: Maia Greene Fred
+True: {752}
+	752: Martn Greene Fred
+

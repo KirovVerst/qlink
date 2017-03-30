@@ -6,9 +6,9 @@ from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-INITIAL_DATA_SIZE = 1000
+INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 1
-LEVEL = [0.81, 0.83, 0.81]
+LEVEL = [0.79] * 3
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
@@ -24,7 +24,7 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'])
+    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'], concat=True)
     matrix = matrix.get()
 
     predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)

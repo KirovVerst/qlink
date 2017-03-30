@@ -1,0 +1,8 @@
+{
+  "number_of_datasets": 12,
+  "init_dataset_size": 1000,
+  "average_time": "0:03:20.453193",
+  "average_number_of_errors": 2.8333333333333335,
+  "total_time": "0:40:05.527816",
+  "features": "All datasets were processed in sequence, but each dataset was processed in the parallel way. Records weren't concatenated into one string."
+}

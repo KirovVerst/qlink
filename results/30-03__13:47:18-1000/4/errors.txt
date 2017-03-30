@@ -1,0 +1,14 @@
+Error 1:
+Predicted: {147, 13}
+	147: Virgginia Ric Roger
+	13: Virginia Reid Roger
+True: {13}
+	13: Virginia Reid Roger
+
+Error 2:
+Predicted: {1348, 134}
+	1348: Ruth HHunt Juan
+	134: Rth Hunter Ryan
+True: {134}
+	134: Rth Hunter Ryan
+

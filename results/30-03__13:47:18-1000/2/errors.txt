@@ -1,0 +1,24 @@
+Error 1:
+Predicted: {225, 35}
+	225: Joan Cox teven
+	35: Ryan Ros Steve
+True: {35}
+	35: Ryan Ros Steve
+
+Error 2:
+Predicted: {1209, 773, 295}
+	1209: Joe Carter Dennis
+	773: Jeesse Parker Dennis
+	295: Joe Carter Dennis
+True: {1209, 295}
+	1209: Joe Carter Dennis
+	295: Joe Carter Dennis
+
+Error 3:
+Predicted: {393, 861, 302}
+	393: Terry Jacobs Crraig
+	861: Tery Jacobs Craig
+	302: Gaary Jacobs Crag
+True: {302}
+	302: Gaary Jacobs Crag
+

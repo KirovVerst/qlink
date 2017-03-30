@@ -1,5 +1,5 @@
 from math import ceil
-
+import numpy as np
 
 def predict_duplicates(data, level):
     """
@@ -19,15 +19,14 @@ def predict_duplicates(data, level):
     def rec(i, x):
         processed.add(i)
         max_index = -1
-        max_value = 0
         k = len(level)
-        min_number_fields = k
-        if k > 1:
-            min_number_fields = ceil(k / 2)
+        max_value = 0
         for (j, e) in enumerate(x[i]):
-            if sum(e > level) == k and j not in processed and sum(e > max_value) > min_number_fields:
-                max_value = e
-                max_index = j
+            if sum(e > level) == k and j not in processed:
+                distance = np.linalg.norm(e)
+                if distance > max_value:
+                    max_value = distance
+                    max_index = j
         if max_index != -1:
             return [max_index] + rec(max_index, x)
         else:

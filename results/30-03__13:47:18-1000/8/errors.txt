@@ -1,0 +1,7 @@
+Error 1:
+Predicted: {1252, 757}
+	1252: Karen Rodrigueez Carlos
+	757: Karen Rodriguez Carlos
+True: {757}
+	757: Karen Rodriguez Carlos
+
