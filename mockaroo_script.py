@@ -6,9 +6,9 @@ from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 4
-LEVEL = 0.865
+INITIAL_DATA_SIZE = 1000
+DOCUMENT_NUMBER = 1
+LEVEL = [0.81, 0.83, 0.81]
 
 START_TIME = datetime.datetime.now()
 START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")

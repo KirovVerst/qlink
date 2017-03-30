@@ -1,8 +1,15 @@
+from math import ceil
+
+
 def predict_duplicates(data, level):
     """
 
-    :param data: [[float], [float] ]
-    :param level: float 
+    :param data: [
+                    [[float, ...], [float, ...]],
+                    [[float, ...], [float, ...]],
+                    [[float, ...], [float, ...]]
+                ]
+    :param level: [float, float] 
     :return: 
     {
         'items': [[int, ], [int, ]]
@@ -13,8 +20,12 @@ def predict_duplicates(data, level):
         processed.add(i)
         max_index = -1
         max_value = 0
+        k = len(level)
+        min_number_fields = k
+        if k > 1:
+            min_number_fields = ceil(k / 2)
         for (j, e) in enumerate(x[i]):
-            if e > level and j not in processed and e > max_value:
+            if sum(e > level) == k and j not in processed and sum(e > max_value) > min_number_fields:
                 max_value = e
                 max_index = j
         if max_index != -1:
@@ -29,5 +40,3 @@ def predict_duplicates(data, level):
             duplicates = [i] + rec(i, data)
             results.append(duplicates)
     return dict(items=results)
-
-
