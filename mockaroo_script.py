@@ -6,7 +6,7 @@ from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-INITIAL_DATA_SIZE = 1500
+INITIAL_DATA_SIZE = 2000
 DOCUMENT_NUMBER = 1
 
 

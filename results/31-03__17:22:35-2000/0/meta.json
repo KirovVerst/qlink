@@ -1,0 +1,13 @@
+{
+  "dataset_size": 2780,
+  "number_of_errors": 11.0,
+  "time_delta": "0:17:56.654140",
+  "max_dist": [
+    24
+  ],
+  "threshold": [
+    0.85,
+    0.85,
+    0.85
+  ]
+}
