@@ -6,19 +6,11 @@ from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-INITIAL_DATA_SIZE = 100
+INITIAL_DATA_SIZE = 1500
 DOCUMENT_NUMBER = 1
-LEVEL = [0.79] * 3
-
-START_TIME = datetime.datetime.now()
-START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
-FOLDER_PATH = os.path.join('logs', '{0}-{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
-
-total_time = datetime.timedelta()
-total_number_of_errors = 0
 
 
-def func(document_index):
+def func(document_index, level):
     current_time = datetime.datetime.now()
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
@@ -27,7 +19,7 @@ def func(document_index):
     matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'], concat=True)
     matrix = matrix.get()
 
-    predicted_duplicates = predict_duplicates(matrix['values'], LEVEL)
+    predicted_duplicates = predict_duplicates(matrix['values'], level)
 
     errors = get_differences(data.true_duplicates['items'], predicted_duplicates['items'])
 
@@ -44,7 +36,7 @@ def func(document_index):
         'number_of_errors': errors['number_of_errors'],
         'time_delta': str(time_delta),
         'max_dist': matrix['max_dist'],
-        'threshold': LEVEL
+        'threshold': level
     }
     logger.save_data(data=current_meta_data)
     print("Dataset {0} is ready.".format(document_index + 1))
@@ -52,19 +44,27 @@ def func(document_index):
 
 
 results = []
-for i in range(DOCUMENT_NUMBER):
-    results.append(tuple(func(i)))
+for k in [0.85]:
+    START_TIME = datetime.datetime.now()
+    START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
+    FOLDER_PATH = os.path.join('logs', '{0}-{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
 
-for errors, time in results:
-    total_time += time
-    total_number_of_errors += errors
+    total_time = datetime.timedelta()
+    total_number_of_errors = 0
+    print("Threshold: {0}".format(k))
+    for i in range(DOCUMENT_NUMBER):
+        results.append(tuple(func(i, [k] * 3)))
 
-meta_data = {
-    "number_of_datasets": DOCUMENT_NUMBER,
-    "init_dataset_size": INITIAL_DATA_SIZE,
-    "average_time": str(total_time / DOCUMENT_NUMBER),
-    "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
-    "total_time": str(datetime.datetime.now() - START_TIME),
-}
-logger = Logger(FOLDER_PATH)
-logger.save_data(data=meta_data)
+    for errors, time in results:
+        total_time += time
+        total_number_of_errors += errors
+
+    meta_data = {
+        "number_of_datasets": DOCUMENT_NUMBER,
+        "init_dataset_size": INITIAL_DATA_SIZE,
+        "average_time": str(total_time / DOCUMENT_NUMBER),
+        "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
+        "total_time": str(datetime.datetime.now() - START_TIME),
+    }
+    logger = Logger(FOLDER_PATH)
+    logger.save_data(data=meta_data)
