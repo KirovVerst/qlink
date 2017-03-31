@@ -6,10 +6,10 @@ from collections import defaultdict
 from data.mockaroo.mistake_generation import duplicate_rows, add_mistakes
 
 columns = dict(first_name=0.3, last_name=0.3, father=0.3)
-NUMBER_OF_DATASETS = 1
+NUMBER_OF_DATASETS = 6
 NUMBER_OF_RAW_DOCUMENTS = 12
 
-for N in [1500]:
+for N in [2000]:
     data_folder_path = 'ready/{0}'.format(N)
     if not os.path.exists(data_folder_path):
         os.mkdir(data_folder_path)
