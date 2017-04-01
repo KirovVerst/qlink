@@ -1,8 +1,6 @@
 import datetime, os
-from pathos.multiprocessing import Pool
 from modules.dataset_receiving import Data
 from modules.duplicate_searching import predict_duplicates
-from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
@@ -11,12 +9,9 @@ if __name__ == "__main__":
     level = [0.80, 0.80, 0.80]
     name = "data_0"
     kwargs = {
-        "dialect": "mysql",
-        "user": "username",
-        "password": "password",
-        "host": "localhost:3306",
-        "db_name": "dataset",
-        "query": "SELECT * FROM data_0"
+        "dialect": "sqlite",
+        "db_name": "data/db/example.sqlite3",
+        "query": "SELECT * FROM dataset"
     }
 
     current_time = datetime.datetime.now()
@@ -35,7 +30,9 @@ if __name__ == "__main__":
 
     time_delta = datetime.datetime.now() - current_time
 
-    del kwargs['password']
+    if 'password' in kwargs:
+        del kwargs['password']
+
     current_meta_data = {
         'dataset_size': len(data.df),
         'time_delta': str(time_delta),
