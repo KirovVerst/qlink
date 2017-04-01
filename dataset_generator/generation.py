@@ -1,9 +1,11 @@
-import pandas as pd
-import numpy as np
-import os, json
-
+import json
+import os
 from collections import defaultdict
-from data.mockaroo.mistake_generation import duplicate_rows, add_mistakes
+
+import numpy as np
+import pandas as pd
+
+from mistake_generation import duplicate_rows, add_mistakes
 
 
 class DatasetGenerator:
@@ -94,35 +96,37 @@ class DatasetGenerator:
                                    dataset_id=dataset_id)
 
 
-for size, number in [(100, 12)]:
-    dataset_folder_path = 'ready/{0}'.format(size)
-    if not os.path.exists(dataset_folder_path):
-        os.mkdir(dataset_folder_path)
+if __name__ == "__main__":
+    for size, number in [(100, 2)]:
+        folder = os.path.join(os.path.pardir, "data", "mockaroo")
+        dataset_folder_path = os.path.join(folder, 'ready', str(size))
+        if not os.path.exists(dataset_folder_path):
+            os.makedirs(dataset_folder_path)
 
-    duplicate_folder_path = 'duplicates/{0}'.format(size)
-    if not os.path.exists(duplicate_folder_path):
-        os.makedirs(duplicate_folder_path, exist_ok=True)
+        duplicate_folder_path = os.path.join(folder, 'duplicates', str(size))
+        if not os.path.exists(duplicate_folder_path):
+            os.makedirs(duplicate_folder_path, exist_ok=True)
 
-    configuration = {
-        "raw_data_folder": os.path.join("original"),
-        "destinations": [
-            {
-                "type": "csv",
-                "dataset_folder": os.path.join("ready", str(size)),
-                "duplicate_folder": os.path.join("duplicates", str(size))
-            }
-        ],
-        "dataset_conf": {
-            "number": number,
-            "init_size": size,
-            "mistakes": dict(first_name=0.3, last_name=0.3, father=0.3),
-            "duplicates": {
-                "range": 2,
-                "frac": 0.3
+        configuration = {
+            "raw_data_folder": os.path.join(folder, "original"),
+            "destinations": [
+                {
+                    "type": "csv",
+                    "dataset_folder": os.path.join(dataset_folder_path),
+                    "duplicate_folder": os.path.join(duplicate_folder_path)
+                }
+            ],
+            "dataset_conf": {
+                "number": number,
+                "init_size": size,
+                "mistakes": dict(first_name=0.3, last_name=0.3, father=0.3),
+                "duplicates": {
+                    "range": 2,
+                    "frac": 0.3
+                }
             }
         }
-    }
-    generator = DatasetGenerator(**configuration)
-    generator.write_datasets()
+        generator = DatasetGenerator(**configuration)
+        generator.write_datasets()
 
-    print("Initial size: {0}\tNumber: {1}".format(size, number))
+        print("Initial size: {0}\tNumber: {1}".format(size, number))
