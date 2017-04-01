@@ -6,7 +6,7 @@ from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-INITIAL_DATA_SIZE = 2000
+INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 1
 
 
@@ -66,5 +66,6 @@ for k in [0.85]:
         "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
         "total_time": str(datetime.datetime.now() - START_TIME),
     }
+    print(meta_data)
     logger = Logger(FOLDER_PATH)
     logger.save_data(data=meta_data)

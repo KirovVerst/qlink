@@ -20,7 +20,7 @@ class Data(object):
             self.df = read_csv(self.path_to_dataset)
 
             # duplicates
-            folder = os.path.join(DATASET_TYPES[dataset_type], "true_duplicates", str(kwargs['init_data_size']))
+            folder = os.path.join(DATASET_TYPES[dataset_type], "duplicates", str(kwargs['init_data_size']))
             filename = "data_{0}.json".format(kwargs['document_index'])
             self.path_to_true_duplicates = os.path.join(folder, filename)
             self.true_duplicates = {'items': []}
