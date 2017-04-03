@@ -30,14 +30,12 @@ class EditDistanceMatrix(object):
                 s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
                 d = []
                 for i1 in range(self.k):
-                    d.append(self.func(s1[i1], s2[i1]))
+                    max_d = max(len(s1[i1]), len(s2[i1]))
+                    d.append((max_d - self.func(s1[i1], s2[i1])) / max_d)
 
                 self.x[i][j] = d
                 self.x[j][i] = d
 
-                for i1 in range(len(d)):
-                    if d[i1] > max_dist[i1]:
-                        max_dist[i1] = d[i1]
         return max_dist, np.array(self.x)
 
     def get_row_indexes(self, njobs):
@@ -83,17 +81,6 @@ class EditDistanceMatrix(object):
             for i in range(self.k):
                 self.max_dist.append(max(results, key=lambda k: k[0][i])[0][i])
 
-        """
-        Levenshtein distance normalization
-        """
-        if self.normalize:
-            for i in range(self.k):
-                if self.max_dist[i] != 0:
-                    self.x[:, :, i] = (self.max_dist[i] - self.x[:, :, i]) / self.max_dist[i]
-                else:
-                    self.x[:, :, i] = np.ones((self.size, self.size))
-            for j in range(self.size):
-                self.x[j, j, :] = 0
         return {
             'values': self.x,
             'max_dist': self.max_dist
