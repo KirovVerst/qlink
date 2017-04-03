@@ -12,7 +12,7 @@ except:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 1
+DOCUMENT_NUMBER = 12
 
 
 def func(document_index, level):
@@ -49,7 +49,7 @@ def func(document_index, level):
 
 
 results = []
-for k in [0.85]:
+for k in [0.80]:
     START_TIME = datetime.datetime.now()
     START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
     FOLDER_PATH = os.path.join(BASE_DIR, 'logs', '{0}-{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
@@ -71,5 +71,6 @@ for k in [0.85]:
         "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
         "total_time": str(datetime.datetime.now() - START_TIME),
     }
+    print(meta_data)
     logger = Logger(FOLDER_PATH)
     logger.save_data(data=meta_data)
