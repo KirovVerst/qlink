@@ -1,8 +1,8 @@
 import os, json
 from pandas import read_csv, read_sql
 from sqlalchemy.engine import create_engine
+from conf import BASE_DIR
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATASET_TYPES = {"mockaroo": os.path.join(BASE_DIR, "data", "mockaroo")}
 
 

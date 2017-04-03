@@ -7,7 +7,7 @@ class Logger(object):
             self.folder_path = folder_path
         else:
             if not os.path.exists(folder_path):
-                os.mkdir(folder_path)
+                os.makedirs(folder_path, exist_ok=True)
             self.folder_path = os.path.join(folder_path, str(dataset_index))
 
         if not os.path.exists(self.folder_path):

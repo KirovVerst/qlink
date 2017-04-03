@@ -1,23 +1,23 @@
 import datetime, os
+
 from modules.dataset_receiving import Data
 from modules.duplicate_searching import predict_duplicates
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
+from conf import DATABASE
+
 if __name__ == "__main__":
     dataset_type = "sql"
     level = [0.80, 0.80, 0.80]
     name = "data_0"
-    kwargs = {
-        "dialect": "sqlite",
-        "db_name": "data/db/example.sqlite3",
-        "query": "SELECT * FROM dataset"
-    }
 
     current_time = datetime.datetime.now()
-    FOLDER_PATH = os.path.join('logs', '{0}-{1}'.format(current_time.strftime("%d-%m %H:%M:%S").replace(" ", "__"),
+    current_time_str = current_time.strftime("%d-%m %H:%M:%S")
+    print("Start time: {0}".format(current_time_str))
+    FOLDER_PATH = os.path.join('logs', '{0}-{1}'.format(current_time_str.replace(" ", "__"),
                                                         name))
-    data = Data(dataset_type=dataset_type, kwargs=kwargs)
+    data = Data(dataset_type=dataset_type, kwargs=DATABASE['default'])
 
     matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'], concat=True)
     matrix = matrix.get()
@@ -30,15 +30,16 @@ if __name__ == "__main__":
 
     time_delta = datetime.datetime.now() - current_time
 
-    if 'password' in kwargs:
-        del kwargs['password']
+    if 'password' in DATABASE['mysql']:
+        del DATABASE['default']['password']
 
     current_meta_data = {
         'dataset_size': len(data.df),
         'time_delta': str(time_delta),
         'max_dist': matrix['max_dist'],
         'threshold': level,
-        'dataset_info': kwargs,
+        'dataset_info': DATABASE,
     }
     logger.save_data(data=current_meta_data)
     print("Dataset {0} is ready.".format(1))
+    print("Time: {0}".format(current_meta_data['time_delta']))
