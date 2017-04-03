@@ -5,7 +5,10 @@ from modules.duplicate_searching import predict_duplicates
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-from conf import DATABASE
+try:
+    from conf import DATABASE
+except Exception:
+    from conf_example import DATABASE
 
 if __name__ == "__main__":
     dataset_type = "sql"
@@ -30,7 +33,7 @@ if __name__ == "__main__":
 
     time_delta = datetime.datetime.now() - current_time
 
-    if 'password' in DATABASE['mysql']:
+    if 'password' in DATABASE['default']:
         del DATABASE['default']['password']
 
     current_meta_data = {
@@ -38,7 +41,7 @@ if __name__ == "__main__":
         'time_delta': str(time_delta),
         'max_dist': matrix['max_dist'],
         'threshold': level,
-        'dataset_info': DATABASE,
+        'dataset_info': DATABASE['default'],
     }
     logger.save_data(data=current_meta_data)
     print("Dataset {0} is ready.".format(1))

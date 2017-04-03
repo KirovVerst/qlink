@@ -6,7 +6,10 @@ from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
-from conf import BASE_DIR
+try:
+    from conf import BASE_DIR
+except:
+    from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 1
