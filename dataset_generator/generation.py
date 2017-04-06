@@ -97,7 +97,7 @@ class DatasetGenerator:
 
 
 if __name__ == "__main__":
-    for size, number in [(2000, 6)]:
+    for size, number in [(100, 12)]:
         folder = os.path.join(os.path.pardir, "data", "mockaroo")
         dataset_folder_path = os.path.join(folder, 'ready', str(size))
         if not os.path.exists(dataset_folder_path):
