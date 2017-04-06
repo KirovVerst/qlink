@@ -94,9 +94,5 @@ ENV/
 .idea/
 /logs/
 
-# datasets
-data/mockaroo/duplicates/*
-data/mockaroo/ready/*
-
 # configuration
 conf.py
