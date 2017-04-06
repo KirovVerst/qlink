@@ -48,29 +48,30 @@ def func(document_index, level):
     return errors['number_of_errors'], time_delta
 
 
-results = []
-for k in [0.80]:
-    START_TIME = datetime.datetime.now()
-    START_TIME_STR = START_TIME.strftime("%d_%m_%H_%M_%S").replace(" ", "__")
-    FOLDER_PATH = os.path.join(BASE_DIR, 'logs', '{0}_{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
+if __name__ == "__main__":
+    results = []
+    for k in [0.80]:
+        START_TIME = datetime.datetime.now()
+        START_TIME_STR = START_TIME.strftime("%d_%m_%H_%M_%S").replace(" ", "__")
+        FOLDER_PATH = os.path.join(BASE_DIR, 'logs', '{0}_{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
 
-    total_time = datetime.timedelta()
-    total_number_of_errors = 0
-    print("Threshold: {0}".format(k))
-    for i in range(DOCUMENT_NUMBER):
-        results.append(tuple(func(i, [k] * 3)))
+        total_time = datetime.timedelta()
+        total_number_of_errors = 0
+        print("Threshold: {0}".format(k))
+        for i in range(DOCUMENT_NUMBER):
+            results.append(tuple(func(i, [k] * 3)))
 
-    for errors, time in results:
-        total_time += time
-        total_number_of_errors += errors
+        for errors, time in results:
+            total_time += time
+            total_number_of_errors += errors
 
-    meta_data = {
-        "number_of_datasets": DOCUMENT_NUMBER,
-        "init_dataset_size": INITIAL_DATA_SIZE,
-        "average_time": str(total_time / DOCUMENT_NUMBER),
-        "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
-        "total_time": str(datetime.datetime.now() - START_TIME),
-    }
-    print(meta_data)
-    logger = Logger(FOLDER_PATH)
-    logger.save_data(data=meta_data)
+        meta_data = {
+            "number_of_datasets": DOCUMENT_NUMBER,
+            "init_dataset_size": INITIAL_DATA_SIZE,
+            "average_time": str(total_time / DOCUMENT_NUMBER),
+            "average_number_of_errors": total_number_of_errors / DOCUMENT_NUMBER,
+            "total_time": str(datetime.datetime.now() - START_TIME),
+        }
+        print(meta_data)
+        logger = Logger(FOLDER_PATH)
+        logger.save_data(data=meta_data)
