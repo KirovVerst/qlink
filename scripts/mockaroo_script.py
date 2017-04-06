@@ -11,7 +11,7 @@ try:
 except:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 1000
+INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 12
 
 
@@ -21,10 +21,11 @@ def func(document_index, level):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'], concat=True)
-    matrix = matrix.get()
+    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'],
+                                concat=False, normalize="total")
+    matrix_values = matrix.get()
 
-    predicted_duplicates = predict_duplicates(matrix['values'], level)
+    predicted_duplicates = predict_duplicates(matrix_values['values'], level)
 
     errors = get_differences(data.true_duplicates['items'], predicted_duplicates['items'])
 
@@ -40,8 +41,10 @@ def func(document_index, level):
         'dataset_size': len(data.df),
         'number_of_errors': errors['number_of_errors'],
         'time_delta': str(time_delta),
-        'max_dist': matrix['max_dist'],
-        'threshold': level
+        'max_dist': matrix_values['max_dist'],
+        'threshold': level,
+        'normalize': str(matrix.normalize),
+        "concat": True if matrix.k == 1 else True
     }
     logger.save_data(data=current_meta_data)
     print("Dataset {0} is ready.".format(document_index + 1))
@@ -50,7 +53,7 @@ def func(document_index, level):
 
 if __name__ == "__main__":
     results = []
-    for k in [0.80]:
+    for k in [0.7]:
         START_TIME = datetime.datetime.now()
         START_TIME_STR = START_TIME.strftime("%d_%m_%H_%M_%S").replace(" ", "__")
         FOLDER_PATH = os.path.join(BASE_DIR, 'logs', '{0}_{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
