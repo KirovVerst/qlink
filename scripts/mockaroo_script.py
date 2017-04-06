@@ -13,7 +13,7 @@ try:
 except:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 100
+INITIAL_DATA_SIZE = 1000
 DOCUMENT_NUMBER = 12
 
 
@@ -31,7 +31,7 @@ def func(document_index):
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    for level in range(65, 75):
+    for level in range(70, 85):
         level /= 100
         predicted_duplicates = predict_duplicates(matrix_values['values'], [level] * 3)
 

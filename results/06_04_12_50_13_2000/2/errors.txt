@@ -1,0 +1,105 @@
+Error 1:
+Predicted: {2147, 1892, 149}
+	2147: Jdy Morreno Jsse
+	1892: JJudy Mooreno Jessse
+	149: Jmmy Mreno Josee
+True: {149}
+	149: Jmmy Mreno Josee
+
+Error 2:
+Predicted: {192, 1993}
+	192: Annnie ose Lary
+	1993: arie Cle Jerryy
+True: {192}
+	192: Annnie ose Lary
+
+Error 3:
+Predicted: {1659, 198}
+	1659: Phhillip Jams Ada
+	198: Pillip Jmes AAdam
+True: {198}
+	198: Pillip Jmes AAdam
+
+Error 4:
+Predicted: {1826, 199}
+	1826: Brin Reeed immy
+	199: Tin Rui Billly
+True: {199}
+	199: Tin Rui Billly
+
+Error 5:
+Predicted: {1199, 1101, 279}
+	1199: Harr Greeen Benjjamin
+	1101: Harryy GGreen Benjaamin
+	279: Gaary Griffn Benjammin
+True: {279}
+	279: Gaary Griffn Benjammin
+
+Error 6:
+Predicted: {1276, 303}
+	1276: Karn Tompson oe
+	303: Kein Thmpson Rooy
+True: {303}
+	303: Kein Thmpson Rooy
+
+Error 7:
+Predicted: {1073, 347, 406, 1843}
+	1073: CCarl PPeters Lary
+	347: Ceryl Peers Hrry
+	406: Carll PPeters Lary
+	1843: Carll Petes LLarry
+True: {347}
+	347: Ceryl Peers Hrry
+
+Error 8:
+Predicted: {376, 2440}
+	376: Tod Moor Jerrry
+	2440: Tod Morrris Jeffrrey
+True: {376}
+	376: Tod Moor Jerrry
+
+Error 9:
+Predicted: {2376, 1774, 2709, 542}
+	2376: Keelly Mooe Jmes
+	1774: Biilly ox Jaes
+	2709: elly Mooore Jams
+	542: KKelly Mooore Jammes
+True: {2376, 2709, 542}
+	2376: Keelly Mooe Jmes
+	2709: elly Mooore Jams
+	542: KKelly Mooore Jammes
+
+Error 10:
+Predicted: {1728, 657, 1906, 1817}
+	1728: immy Gaarza Jan
+	657: elly Garrettt Briian
+	1906: Klly Garett Bian
+	1817: Kely Garrrett Briaan
+True: {657, 1906, 1817}
+	657: elly Garrettt Briian
+	1906: Klly Garett Bian
+	1817: Kely Garrrett Briaan
+
+Error 11:
+Predicted: {916, 2727}
+	916: Tinna Bery Earrl
+	2727: Ana Berrry PPaul
+True: {916}
+	916: Tinna Bery Earrl
+
+Error 12:
+Predicted: {962, 2684, 1966}
+	962: Frnk ox Erc
+	2684: FFrank ox arl
+	1966: Fran Coox Carrl
+True: {962}
+	962: Frnk ox Erc
+
+Error 13:
+Predicted: {2722, 1571, 2372}
+	2722: Caolyn Wiillis Williiam
+	1571: Caroyn Mils Willlie
+	2372: Carollyn Wiillis Willliam
+True: {1571}
+	1571: Caroyn Mils Willlie
+

@@ -1,0 +1,59 @@
+Error 1:
+Predicted: {19, 1276, 2779}
+	19: Juuan ims Sean
+	1276: Judy Sims Alan
+	2779: Judy SSims Alan
+True: {19}
+	19: Juuan ims Sean
+
+Error 2:
+Predicted: {1480, 217, 1690, 2394}
+	1480: Ruth Roberts Arthur
+	217: Saah Rogers Arthur
+	1690: Ruh Roberts Arthur
+	2394: Ruth RRoberts Arthur
+True: {217}
+	217: Saah Rogers Arthur
+
+Error 3:
+Predicted: {1490, 355, 628}
+	1490: Louise TTurner Alan
+	355: Lois Tucker Juan
+	628: Louise Turner Alan
+True: {355}
+	355: Lois Tucker Juan
+
+Error 4:
+Predicted: {945, 473, 1555}
+	945: Carl Torres Jason
+	473: Earl Jones Jason
+	1555: Earl Jones Jason
+True: {473, 1555}
+	473: Earl Jones Jason
+	1555: Earl Jones Jason
+
+Error 5:
+Predicted: {2449, 530, 1034}
+	2449: Dois Stanley Frank
+	530: Loui Stanley rank
+	1034: Louis Stanley Frankk
+True: {530, 1034}
+	530: Loui Stanley rank
+	1034: Louis Stanley Frankk
+
+Error 6:
+Predicted: {620, 2710}
+	620: Kenneth Lopez Jeerry
+	2710: Keth Lpez Jesse
+True: {620}
+	620: Kenneth Lopez Jeerry
+
+Error 7:
+Predicted: {1842, 891, 1557}
+	1842: Mary Rice Harry
+	891: Maria Rice Henry
+	1557: Maria Rice Henry
+True: {891, 1557}
+	891: Maria Rice Henry
+	1557: Maria Rice Henry
+
