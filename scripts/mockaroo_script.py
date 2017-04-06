@@ -12,7 +12,7 @@ except:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 12
+DOCUMENT_NUMBER = 1
 
 
 def func(document_index, level):
@@ -51,8 +51,8 @@ def func(document_index, level):
 results = []
 for k in [0.80]:
     START_TIME = datetime.datetime.now()
-    START_TIME_STR = START_TIME.strftime("%d-%m %H:%M:%S").replace(" ", "__")
-    FOLDER_PATH = os.path.join(BASE_DIR, 'logs', '{0}-{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
+    START_TIME_STR = START_TIME.strftime("%d_%m_%H_%M_%S").replace(" ", "__")
+    FOLDER_PATH = os.path.join(BASE_DIR, 'logs', '{0}_{1}'.format(START_TIME_STR, INITIAL_DATA_SIZE))
 
     total_time = datetime.timedelta()
     total_number_of_errors = 0
