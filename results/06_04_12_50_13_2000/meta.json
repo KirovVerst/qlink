@@ -1,1 +1,7 @@
-{"init_dataset_size": 2000, "average_time": "0:04:19.956882", "total_time": "0:25:59.819393", "average_number_of_errors": 24.166666666666668, "number_of_datasets": 6}
+{
+  "init_dataset_size": 2000,
+  "average_time": "0:04:19.956882",
+  "total_time": "0:25:59.819393",
+  "average_number_of_errors": 24.166666666666668,
+  "number_of_datasets": 6
+}
