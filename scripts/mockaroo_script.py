@@ -1,6 +1,7 @@
 import datetime, os
-
 import pprint
+
+from collections import defaultdict
 
 from modules.dataset_receiving import Data
 from modules.duplicate_searching import predict_duplicates
@@ -10,24 +11,26 @@ from modules.result_saving import Logger
 
 try:
     from conf import BASE_DIR
-except:
+except Exception as ex:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 1000
-DOCUMENT_NUMBER = 12
+INITIAL_DATA_SIZE = 100
+DOCUMENT_NUMBER = 6
 
 
 def func(document_index):
     current_time = datetime.datetime.now()
+    print("Dataset {0} is started: {1}".format(document_index + 1, current_time.strftime("%d-%m %H:%M:%S")))
+
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
     matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'],
-                                concat=False, normalize="max")
+                                concat=False, normalize="total")
     matrix_values = matrix.get()
 
-    results_by_level = dict()
+    results_grouped_by_level = dict()
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
@@ -37,7 +40,7 @@ def func(document_index):
 
         errors = get_differences(data.true_duplicates['items'], predicted_duplicates['items'])
         errors['level'] = level
-        results_by_level[level] = errors['number_of_errors']
+        results_grouped_by_level[level] = errors['number_of_errors']
 
         logger.save_errors(df=data.df, errors=errors)
 
@@ -47,16 +50,20 @@ def func(document_index):
 
     current_meta_data = {
         'dataset_size': len(data.df),
-        'results': results_by_level,
+        'results': results_grouped_by_level,
         'time_delta': str(time_delta),
         'max_dist': matrix_values['max_dist'],
         'normalize': str(matrix.normalize),
-        "concat": True if matrix.k == 1 else True
+        "concat": str(matrix.k == 1)
     }
-    print("Dataset {0} is ready.".format(document_index + 1))
+
+    print("Dataset {0} is ready: {1}".format(document_index + 1, datetime.datetime.now().strftime("%d-%m %H:%M:%S")))
+    print("Time delta: {0}".format(str(time_delta)))
     pprint.pprint(current_meta_data['results'])
+
     logger.save_data(data=current_meta_data)
-    return results_by_level
+
+    return results_grouped_by_level
 
 
 if __name__ == "__main__":
@@ -67,14 +74,11 @@ if __name__ == "__main__":
 
     total_time = datetime.timedelta()
     total_number_of_errors = 0
-    total_result = dict()
+    total_result = defaultdict(int)
     for i in range(DOCUMENT_NUMBER):
         result = func(i)
-        for key in result.keys():
-            if key in total_result:
-                total_result[key] += result[key]
-            else:
-                total_result[key] = result[key]
+        for level, value in result.items():
+            total_result[level] += value
 
     for key in total_result:
         total_result[key] /= DOCUMENT_NUMBER
@@ -82,7 +86,6 @@ if __name__ == "__main__":
     meta_data = {
         "number_of_datasets": DOCUMENT_NUMBER,
         "init_dataset_size": INITIAL_DATA_SIZE,
-        "average_time": str(total_time / DOCUMENT_NUMBER),
         "average_number_of_errors": total_result,
         "total_time": str(datetime.datetime.now() - START_TIME),
     }
