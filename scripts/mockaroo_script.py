@@ -14,8 +14,8 @@ try:
 except Exception as ex:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 6
+INITIAL_DATA_SIZE = 3000
+DOCUMENT_NUMBER = 1
 
 
 def func(document_index):
