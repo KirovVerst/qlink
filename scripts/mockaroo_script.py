@@ -1,10 +1,12 @@
 import datetime, os
 import pprint
 
+from pathos.multiprocessing import Pool
+
 from collections import defaultdict
 
 from modules.dataset_receiving import Data
-from modules.duplicate_searching import predict_duplicates
+from modules.duplicate_searching import Predictor
 from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
@@ -34,12 +36,16 @@ def func(document_index):
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    for level in range(70, 85):
-        level /= 100
-        predicted_duplicates = predict_duplicates(matrix_values['values'], [level] * 3)
+    levels = list(map(lambda x: [x / 100] * 3, range(70, 85)))
 
-        errors = get_differences(data.true_duplicates['items'], predicted_duplicates['items'])
-        errors['level'] = level
+    predictor = Predictor(data=matrix_values['values'], levels=levels)
+
+    predicted_duplicates = predictor.predict_duplicates()
+
+    for duplicates in predicted_duplicates:
+        errors = get_differences(data.true_duplicates['items'], duplicates['items'])
+        errors['level'] = duplicates['level']
+        level = errors['level'][0]
         results_grouped_by_level[level] = errors['number_of_errors']
 
         logger.save_errors(df=data.df, errors=errors)
