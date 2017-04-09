@@ -1,5 +1,6 @@
-from math import ceil
 import numpy as np
+import os
+from pathos.multiprocessing import Pool
 
 
 class Predictor:
@@ -31,11 +32,10 @@ class Predictor:
         else:
             return []
 
-    def predict_duplicates(self):
-        results = list()
+    def predict_duplicates(self, njobs=-1):
+        if njobs <= -1 or njobs > os.cpu_count():
+            njobs = os.cpu_count()
+        with Pool(njobs) as p:
+            results = list(p.map(self._predict_for_one_level, range(len(self.state))))
 
-        for state_index in range(len(self.state)):
-            r = self._predict_for_one_level(state_index)
-
-            results.append(r)
         return results

@@ -17,12 +17,12 @@ except Exception as ex:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 6
+DOCUMENT_NUMBER = 12
 
 
 def func(document_index):
     current_time = datetime.datetime.now()
-    print("Dataset {0} is started: {1}".format(document_index + 1, current_time.strftime("%d-%m %H:%M:%S")))
+    print("Dataset {0} was started: \t\t{1}".format(document_index + 1, current_time))
 
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
@@ -32,15 +32,19 @@ def func(document_index):
                                 concat=False, normalize="total")
     matrix_values = matrix.get()
 
+    print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
+
     results_grouped_by_level = dict()
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    levels = list(map(lambda x: [x / 100] * 3, range(70, 85)))
+    levels = list(map(lambda x: [x / 100] * 3, range(70, 90)))
 
     predictor = Predictor(data=matrix_values['values'], levels=levels)
 
     predicted_duplicates = predictor.predict_duplicates()
+
+    print("Duplicates were predicted: \t{}".format(datetime.datetime.now()))
 
     for duplicates in predicted_duplicates:
         errors = get_differences(data.true_duplicates['items'], duplicates['items'])
@@ -63,7 +67,7 @@ def func(document_index):
         "concat": str(matrix.k == 1)
     }
 
-    print("Dataset {0} is ready: {1}".format(document_index + 1, datetime.datetime.now().strftime("%d-%m %H:%M:%S")))
+    print("Dataset {0} is ready: \t\t{1}".format(document_index + 1, datetime.datetime.now()))
     print("Time delta: {0}".format(str(time_delta)))
     pprint.pprint(current_meta_data['results'])
 
