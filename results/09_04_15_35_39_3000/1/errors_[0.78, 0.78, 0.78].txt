@@ -1,0 +1,312 @@
+Error 1:
+Predicted: {24}
+	24: Dennise Watkin hilip
+True: {24, 1261}
+	24: Dennise Watkin hilip
+	1261: DDenise Watkinns Phiip
+
+Error 2:
+Predicted: {1594, 149, 1238, 2487}
+	1594: Tersa Fod Jon
+	149: Tery More Juuan
+	1238: Terrry Mooree Juuan
+	2487: Terryy Moor Jua
+True: {149, 1238, 2487}
+	149: Tery More Juuan
+	1238: Terrry Mooree Juuan
+	2487: Terryy Moor Jua
+
+Error 3:
+Predicted: {171, 3323}
+	171: Marrk ay Chis
+	3323: arl Dy Chriss
+True: {171}
+	171: Marrk ay Chis
+
+Error 4:
+Predicted: {210, 1829, 173}
+	210: lan RReed Roer
+	1829: Cal ell Rogger
+	173: Car Bel RRoger
+True: {1829, 173}
+	1829: Cal ell Rogger
+	173: Car Bel RRoger
+
+Error 5:
+Predicted: {178, 3130}
+	178: Gregoryy Pters Anddrew
+	3130: GGregory Peers Andreew
+True: {178, 3130, 3293}
+	178: Gregoryy Pters Anddrew
+	3130: GGregory Peers Andreew
+	3293: Gregorry Peter Andreww
+
+Error 6:
+Predicted: {218, 3743}
+	218: Lauura Kellly Carll
+	3743: Lauura Belll Lary
+True: {218}
+	218: Lauura Kellly Carll
+
+Error 7:
+Predicted: {352, 400, 3422}
+	352: Jse Rmos Joeph
+	400: Rosee Ra Josse
+	3422: Josse Raos JJoseph
+True: {352, 3422}
+	352: Jse Rmos Joeph
+	3422: Josse Raos JJoseph
+
+Error 8:
+Predicted: {4139, 3381, 437}
+	4139: Crolyn lson Gry
+	3381: Carrolyn Olsson Gay
+	437: Marillyn Ollson Mak
+True: {437}
+	437: Marillyn Ollson Mak
+
+Error 9:
+Predicted: {2634, 1124, 3829, 446}
+	2634: arl Joness Jasn
+	1124: Ear Joness Jaso
+	3829: Carrl Torrees Jasoon
+	446: Carrl Torrs Jasson
+True: {3829, 446}
+	3829: Carrl Torrees Jasoon
+	446: Carrl Torrs Jasson
+
+Error 10:
+Predicted: {2920, 1549, 454}
+	2920: Loi Brry Cal
+	1549: Royy Pery Paaul
+	454: odd Bll San
+True: {454}
+	454: odd Bll San
+
+Error 11:
+Predicted: {4105, 459, 1167}
+	4105: hillip Jammes Adaam
+	459: Philip ames Adamm
+	1167: Phillipp Jaes Adaam
+True: {459}
+	459: Philip ames Adamm
+
+Error 12:
+Predicted: {3058, 1795, 1454, 487}
+	3058: oy ean lan
+	1795: Los DDean Jon
+	1454: Rooy Dan Allan
+	487: RRoy Deaan Alann
+True: {3058, 1454, 487}
+	3058: oy ean lan
+	1454: Rooy Dan Allan
+	487: RRoy Deaan Alann
+
+Error 13:
+Predicted: {531, 2732}
+	531: Lissa Moor ary
+	2732: Lis Carrr Eri
+True: {531}
+	531: Lissa Moor ary
+
+Error 14:
+Predicted: {1818, 559}
+	1818: Jse Dnn Harryy
+	559: Joce Co HHarry
+True: {559}
+	559: Joce Co HHarry
+
+Error 15:
+Predicted: {627, 3333, 2526}
+	627: Marttha Kng Joee
+	3333: Marha ane Toodd
+	2526: Matha Lae odd
+True: {627}
+	627: Marttha Kng Joee
+
+Error 16:
+Predicted: {657, 1697, 3172, 3351}
+	657: Garyy Tores arlos
+	1697: Laarry ones Chri
+	3172: Gry Tores Carls
+	3351: Larryy JJones Chriss
+True: {657, 3172}
+	657: Garyy Tores arlos
+	3172: Gry Tores Carls
+
+Error 17:
+Predicted: {667, 1756}
+	667: Stephannie Hun Hrry
+	1756: Stephhanie Rui Eri
+True: {667, 3839}
+	667: Stephannie Hun Hrry
+	3839: Stphanie Hnt Harryy
+
+Error 18:
+Predicted: {696, 1002, 1964}
+	696: erry RRay Bria
+	1002: Jerr Ry Brrian
+	1964: Jeffre Dayy Bian
+True: {696, 1002}
+	696: erry RRay Bria
+	1002: Jerr Ry Brrian
+
+Error 19:
+Predicted: {920, 3858, 782, 1007}
+	920: Jud Mooore Steveen
+	3858: Juy Moor Steen
+	782: Juli Perr SSean
+	1007: Judyy More Steeven
+True: {782}
+	782: Juli Perr SSean
+
+Error 20:
+Predicted: {812, 1990}
+	812: Kathlen Wods Raph
+	1990: Katthryn Joes Rlph
+True: {812}
+	812: Kathlen Wods Raph
+
+Error 21:
+Predicted: {3472, 1201, 2922, 820, 1743}
+	3472: Stteven Mooree Jerrry
+	1201: Stve Foord Jeeffrey
+	2922: Seve ord Jeffey
+	820: Stevee ord Jeffry
+	1743: teven Moorre JJerry
+True: {1201, 2922, 820}
+	1201: Stve Foord Jeeffrey
+	2922: Seve ord Jeffey
+	820: Stevee ord Jeffry
+
+Error 22:
+Predicted: {904, 2881, 1556, 1001, 1296}
+	904: Pamelaa HHall Mak
+	2881: Paamela all Markk
+	1556: amela all Maark
+	1001: ngela ox MMark
+	1296: ngela Coox Mak
+True: {904, 2881, 1556}
+	904: Pamelaa HHall Mak
+	2881: Paamela all Markk
+	1556: amela all Maark
+
+Error 23:
+Predicted: {3144, 3050, 2251, 950}
+	3144: ina Riz Billly
+	3050: Tna Kiim Boby
+	2251: Tna Ki Boobby
+	950: Tia im Bobb
+True: {3050, 2251, 950}
+	3050: Tna Kiim Boby
+	2251: Tna Ki Boobby
+	950: Tia im Bobb
+
+Error 24:
+Predicted: {3372, 2372, 1045, 1390}
+	3372: Stephnie Burtn HHarold
+	2372: Stephn Burtton Harrold
+	1045: Stphen Burtton HHarold
+	1390: Stephe Burtton Haroldd
+True: {2372, 1045, 1390}
+	2372: Stephn Burtton Harrold
+	1045: Stphen Burtton HHarold
+	1390: Stephe Burtton Haroldd
+
+Error 25:
+Predicted: {1307, 2995, 1181}
+	1307: Johnnyy Masson Erric
+	2995: Jonny ason EEric
+	1181: JJohn Lawsoon Eriic
+True: {1181}
+	1181: JJohn Lawsoon Eriic
+
+Error 26:
+Predicted: {1328, 3042, 2452, 3549}
+	1328: Dris Stannley Fraank
+	3042: Louuis tanley Frannk
+	2452: Louiss Stanleey Frnk
+	3549: Lois Stanly Frannk
+True: {1328}
+	1328: Dris Stannley Fraank
+
+Error 27:
+Predicted: {1762, 3524, 3732, 3045}
+	1762: Wandda Grayy Sea
+	3524: Saara Grnt Aan
+	3732: Wana Gry San
+	3045: arl Gant Juuan
+True: {1762, 3732}
+	1762: Wandda Grayy Sea
+	3732: Wana Gry San
+
+Error 28:
+Predicted: {1784, 1823}
+	1784: Ana Ston yan
+	1823: Wana Oson Bran
+True: {1784}
+	1784: Ana Ston yan
+
+Error 29:
+Predicted: {3555, 1868, 2788}
+	3555: Johhnny Gonzalees Jeesse
+	1868: Joohn Gonzalles Jese
+	2788: Johhn Gonzzales Jess
+True: {1868, 2788}
+	1868: Joohn Gonzalles Jese
+	2788: Johhn Gonzzales Jess
+
+Error 30:
+Predicted: {3153, 1874, 4162, 2278}
+	3153: Carrol Moorre JJimmy
+	1874: Paull Tores Billly
+	4162: Carl oore Jiimmy
+	2278: arol Mooore Jimmmy
+True: {1874}
+	1874: Paull Tores Billly
+
+Error 31:
+Predicted: {2228, 2389, 2871}
+	2228: everly DDay Jmmy
+	2389: Bevverly erry Jeerry
+	2871: Bevely Dayy JJimmy
+True: {2228, 2871}
+	2228: everly DDay Jmmy
+	2871: Bevely Dayy JJimmy
+
+Error 32:
+Predicted: {2325}
+	2325: Amaanda Peter Philiip
+True: {3537, 2325}
+	3537: Amaanda Peers Philp
+	2325: Amaanda Peter Philiip
+
+Error 33:
+Predicted: {2488, 3072, 3766}
+	2488: Jeaan Garner Caarl
+	3072: Kein Garder Aaro
+	3766: evin Gardneer Aaronn
+True: {2488}
+	2488: Jeaan Garner Caarl
+
+Error 34:
+Predicted: {2612}
+	2612: Cheryll Wrightt Jerem
+True: {2612, 3278}
+	2612: Cheryll Wrightt Jerem
+	3278: Cheryyl right Jeemy
+
+Error 35:
+Predicted: {3123, 3447}
+	3123: Jessia Mils Kvin
+	3447: JJesse Mlls Kevn
+True: {3123}
+	3123: Jessia Mils Kvin
+
+Error 36:
+Predicted: {3805, 3559}
+	3805: Waanda RRay Jame
+	3559: Sandraa Rily JJames
+True: {3559}
+	3559: Sandraa Rily JJames
+
