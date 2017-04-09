@@ -1,0 +1,204 @@
+Error 1:
+Predicted: {2218, 77}
+	2218: Sara Harriss Jeremy
+	77: Sara Hart Jerry
+True: {77}
+	77: Sara Hart Jerry
+
+Error 2:
+Predicted: {3506, 463, 4098, 103}
+	3506: Bruce Anderson Scott
+	463: Bruce Anderson Scott
+	4098: Bruce Anderson Scott
+	103: Bruce nderson Scottt
+True: {103}
+	103: Bruce nderson Scottt
+
+Error 3:
+Predicted: {2243, 380, 3294, 158}
+	2243: Nicholas Bod Fred
+	380: Nicholas Rosss Fred
+	3294: Nicholas Byd Fred
+	158: Nicholas Ross Fred
+True: {380, 158}
+	380: Nicholas Rosss Fred
+	158: Nicholas Ross Fred
+
+Error 4:
+Predicted: {322, 4046}
+	322: Virginia Rie Roger
+	4046: Virginia Reiid Roger
+True: {322, 1486}
+	322: Virginia Rie Roger
+	1486: Virginia Rice Roer
+
+Error 5:
+Predicted: {3326, 350}
+	3326: Jerry Mills Chris
+	350: Jeemy Mills Chris
+True: {350}
+	350: Jeemy Mills Chris
+
+Error 6:
+Predicted: {372, 3085, 1894, 812}
+	372: Loiis Stephens Victor
+	3085: Lisa Steens Victor
+	1894: Lisa Stevens Victoor
+	812: Lisa Stevens ictor
+True: {372}
+	372: Loiis Stephens Victor
+
+Error 7:
+Predicted: {1893, 421, 2895}
+	1893: Denise HHarris Donld
+	421: Denise Harris Donalld
+	2895: Dennis Harrison Ronald
+True: {1893, 421}
+	1893: Denise HHarris Donld
+	421: Denise Harris Donalld
+
+Error 8:
+Predicted: {3778, 2916, 591}
+	3778: Jesse Wagner Sean
+	2916: Jeesse Wagner Sean
+	591: Jse Wagner Shawn
+True: {591}
+	591: Jse Wagner Shawn
+
+Error 9:
+Predicted: {939, 3940, 725, 3806}
+	939: Judy Moreno Jesse
+	3940: Jimmy Moreno Joe
+	725: Judy Moreno JJesse
+	3806: Judy Moreno Jesse
+True: {939, 725, 3806}
+	939: Judy Moreno Jesse
+	725: Judy Moreno JJesse
+	3806: Judy Moreno Jesse
+
+Error 10:
+Predicted: {2562, 758}
+	2562: Sean Gordon Jan
+	758: Shawn Jordan Sean
+True: {758}
+	758: Shawn Jordan Sean
+
+Error 11:
+Predicted: {3105, 4044, 3468, 782}
+	3105: Bonnie Dean Juan
+	4044: Anie Dean Sean
+	3468: Bonnie Dean Juan
+	782: Bnnie Dean Juan
+True: {3105, 3468, 782}
+	3105: Bonnie Dean Juan
+	3468: Bonnie Dean Juan
+	782: Bnnie Dean Juan
+
+Error 12:
+Predicted: {2600, 1516, 805}
+	2600: Mary Rice Harry
+	1516: Maria Rice Henry
+	805: Mary Ricee Harry
+True: {2600, 805}
+	2600: Mary Rice Harry
+	805: Mary Ricee Harry
+
+Error 13:
+Predicted: {3041, 3395, 955}
+	3041: Ruth Hunt Juan
+	3395: Ruthh Hunteer Ryan
+	955: RRuth Hunt Juan
+True: {3041, 955}
+	3041: Ruth Hunt Juan
+	955: RRuth Hunt Juan
+
+Error 14:
+Predicted: {2306, 1003, 1927}
+	2306: Henry Warren Carl
+	1003: Jerry Ward Earl
+	1927: Henrry Warren Car
+True: {1003}
+	1003: Jerry Ward Earl
+
+Error 15:
+Predicted: {3768, 1153, 1790}
+	3768: Jeremy Cox Json
+	1153: Jerry Co John
+	1790: Jerey Coxx Jason
+True: {1153}
+	1153: Jerry Co John
+
+Error 16:
+Predicted: {3448, 3015, 1199}
+	3448: Jimmy Fordd AAlan
+	3015: Jimmy Ford Allan
+	1199: Tammmy Moore Ryan
+True: {1199}
+	1199: Tammmy Moore Ryan
+
+Error 17:
+Predicted: {4006, 1870}
+	4006: Carlos Grreene Timothy
+	1870: Caarlos Grant Timothy
+True: {1870}
+	1870: Caarlos Grant Timothy
+
+Error 18:
+Predicted: {1880, 3473, 2156, 2716}
+	1880: Gerald Reid Royy
+	3473: Gerald Reed Bobby
+	2156: Gerald Red Roy
+	2716: erald Reid Roy
+True: {1880, 2716, 2156}
+	1880: Gerald Reid Royy
+	2716: erald Reid Roy
+	2156: Gerald Red Roy
+
+Error 19:
+Predicted: {1923, 2325, 4035}
+	1923: Terry Gardner BBilly
+	2325: HHenry Gardner Bobby
+	4035: Terry Gardner Billly
+True: {1923, 4035}
+	1923: Terry Gardner BBilly
+	4035: Terry Gardner Billly
+
+Error 20:
+Predicted: {2105, 2257}
+	2105: Larry West Carl
+	2257: Harry West Larry
+True: {2105}
+	2105: Larry West Carl
+
+Error 21:
+Predicted: {3281, 2563}
+	3281: Janne Hill Joe
+	2563: Janett Mills Joe
+True: {2563}
+	2563: Janett Mills Joe
+
+Error 22:
+Predicted: {2650, 4163}
+	2650: Sandra Cox Gary
+	4163: Wanda Log Tery
+True: {2650}
+	2650: Sandra Cox Gary
+
+Error 23:
+Predicted: {3955, 3212, 2733}
+	3955: Lori Ray Jon
+	3212: Lois Lan Todd
+	2733: Lois Lane Toddd
+True: {3212, 2733}
+	3212: Lois Lan Todd
+	2733: Lois Lane Toddd
+
+Error 24:
+Predicted: {3688, 3491, 2934}
+	3688: Doris Da Phillip
+	3491: Louis Day Phillip
+	2934: Doris Day Phillp
+True: {3688, 2934}
+	3688: Doris Da Phillip
+	2934: Doris Day Phillp
+

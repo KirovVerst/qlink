@@ -19,7 +19,6 @@ except Exception as ex:
 INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 12
 
-
 def func(document_index):
     current_time = datetime.datetime.now()
     print("Dataset {0} was started: \t\t{1}".format(document_index + 1, current_time))
