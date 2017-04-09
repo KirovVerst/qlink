@@ -1,10 +1,12 @@
 import datetime, os
 import pprint
 
+from pathos.multiprocessing import Pool
+
 from collections import defaultdict
 
 from modules.dataset_receiving import Data
-from modules.duplicate_searching import predict_duplicates
+from modules.duplicate_searching import Predictor
 from modules.result_estimation import get_differences
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
@@ -14,13 +16,12 @@ try:
 except Exception as ex:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 3000
-DOCUMENT_NUMBER = 1
-
+INITIAL_DATA_SIZE = 100
+DOCUMENT_NUMBER = 12
 
 def func(document_index):
     current_time = datetime.datetime.now()
-    print("Dataset {0} is started: {1}".format(document_index + 1, current_time.strftime("%d-%m %H:%M:%S")))
+    print("Dataset {0} was started: \t\t{1}".format(document_index + 1, current_time))
 
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
@@ -30,16 +31,24 @@ def func(document_index):
                                 concat=False, normalize="total")
     matrix_values = matrix.get()
 
+    print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
+
     results_grouped_by_level = dict()
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    for level in range(70, 85):
-        level /= 100
-        predicted_duplicates = predict_duplicates(matrix_values['values'], [level] * 3)
+    levels = list(map(lambda x: [x / 100] * 3, range(70, 90)))
 
-        errors = get_differences(data.true_duplicates['items'], predicted_duplicates['items'])
-        errors['level'] = level
+    predictor = Predictor(data=matrix_values['values'], levels=levels)
+
+    predicted_duplicates = predictor.predict_duplicates()
+
+    print("Duplicates were predicted: \t{}".format(datetime.datetime.now()))
+
+    for duplicates in predicted_duplicates:
+        errors = get_differences(data.true_duplicates['items'], duplicates['items'])
+        errors['level'] = duplicates['level']
+        level = errors['level'][0]
         results_grouped_by_level[level] = errors['number_of_errors']
 
         logger.save_errors(df=data.df, errors=errors)
@@ -57,7 +66,7 @@ def func(document_index):
         "concat": str(matrix.k == 1)
     }
 
-    print("Dataset {0} is ready: {1}".format(document_index + 1, datetime.datetime.now().strftime("%d-%m %H:%M:%S")))
+    print("Dataset {0} is ready: \t\t{1}".format(document_index + 1, datetime.datetime.now()))
     print("Time delta: {0}".format(str(time_delta)))
     pprint.pprint(current_meta_data['results'])
 
