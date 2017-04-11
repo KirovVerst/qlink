@@ -1,8 +1,6 @@
 import datetime, os
 import pprint
 
-from pathos.multiprocessing import Pool
-
 from collections import defaultdict
 
 from modules.dataset_receiving import Data
@@ -17,7 +15,12 @@ except Exception as ex:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 12
+DOCUMENT_NUMBER = 3
+COLUMN_NAMES = ['first_name', 'last_name', 'father']
+LEVELS = list(map(lambda x: [x / 100] * 3, range(70, 80)))
+LIST_2_FLOAT = "sum"  # "norm", "sum"
+RECORD_COMPARATOR = "and"  # "and", "or"
+
 
 def func(document_index):
     current_time = datetime.datetime.now()
@@ -27,8 +30,7 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'],
-                                concat=False, normalize="total")
+    matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES, concat=False, normalize="total")
     matrix_values = matrix.get()
 
     print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
@@ -37,9 +39,8 @@ def func(document_index):
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    levels = list(map(lambda x: [x / 100] * 3, range(70, 90)))
-
-    predictor = Predictor(data=matrix_values['values'], levels=levels)
+    predictor = Predictor(data=matrix_values['values'], levels=LEVELS,
+                          list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR)
 
     predicted_duplicates = predictor.predict_duplicates()
 
@@ -48,7 +49,7 @@ def func(document_index):
     for duplicates in predicted_duplicates:
         errors = get_differences(data.true_duplicates['items'], duplicates['items'])
         errors['level'] = duplicates['level']
-        level = errors['level'][0]
+        level = str(errors['level'])
         results_grouped_by_level[level] = errors['number_of_errors']
 
         logger.save_errors(df=data.df, errors=errors)
@@ -89,13 +90,19 @@ if __name__ == "__main__":
         for level, value in result.items():
             total_result[level] += value
 
+    print("-" * 80)
+
     for key in total_result:
         total_result[key] /= DOCUMENT_NUMBER
 
     meta_data = {
         "number_of_datasets": DOCUMENT_NUMBER,
         "init_dataset_size": INITIAL_DATA_SIZE,
-        "average_number_of_errors": total_result,
+        "dataset_fields": COLUMN_NAMES,
+        "levels": LEVELS,
+        "list2float_function": LIST_2_FLOAT,
+        "record_comparision_function": RECORD_COMPARATOR,
+        "average_number_of_errors": dict(total_result.items()),
         "total_time": str(datetime.datetime.now() - START_TIME),
     }
     pprint.pprint(meta_data)
