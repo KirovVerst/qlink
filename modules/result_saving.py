@@ -13,8 +13,23 @@ class Logger(object):
         if not os.path.exists(self.folder_path):
             os.mkdir(self.folder_path)
 
-    def save_duplicates(self, duplicates, level=""):
-        with open(os.path.join(self.folder_path, 'duplicates_{0}.json'.format(level)), 'w') as f:
+    def save_duplicates(self, duplicates, level=None):
+        """
+        
+        :param duplicates: 
+        :param level: 
+        :return: 
+        """
+
+        if level is None:
+            folder = self.folder_path
+        else:
+            folder = os.path.join(self.folder_path, str("_".join(list(map(str, level)))))
+
+        if not os.path.exists(os.path.join(folder)):
+            os.mkdir(folder)
+
+        with open(os.path.join(folder, 'duplicates.json'), 'w') as f:
             json.dump(duplicates, f)
 
     def save_data(self, data, file_path=None):
@@ -33,13 +48,17 @@ class Logger(object):
             2: first_name2 last_name2
         True:
             1: first_name1 last_name1
-        :param folder_path: 
         :param df: 
         :param errors: dict(items=[dict(true=[1,2], pred=[1,2,3])], level=0.7)
         :return: 
         
         """
-        with open(os.path.join(self.folder_path, "errors_{0}.txt".format(errors['level'])), 'w') as f:
+        folder = os.path.join(self.folder_path, str("_".join(list(map(str, errors['level'])))))
+
+        if not os.path.exists(os.path.join(folder)):
+            os.mkdir(folder)
+
+        with open(os.path.join(folder, "errors.txt"), 'w') as f:
             for i, d in enumerate(errors['items']):
                 true_duplicates = set(d['true'])
                 pred_duplicates = set(d['predict'])

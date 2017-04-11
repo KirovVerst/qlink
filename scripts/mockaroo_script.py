@@ -49,12 +49,12 @@ def func(document_index):
     for duplicates in predicted_duplicates:
         errors = get_differences(data.true_duplicates['items'], duplicates['items'])
         errors['level'] = duplicates['level']
-        level = str(errors['level'])
-        results_grouped_by_level[level] = errors['number_of_errors']
+        level_str = str(errors['level'])
+        results_grouped_by_level[level_str] = errors['number_of_errors']
 
         logger.save_errors(df=data.df, errors=errors)
 
-        logger.save_duplicates(predicted_duplicates, level)
+        logger.save_duplicates(duplicates, errors['level'])
 
     time_delta = datetime.datetime.now() - current_time
 
