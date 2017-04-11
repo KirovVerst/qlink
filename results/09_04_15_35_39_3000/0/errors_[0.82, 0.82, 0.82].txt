@@ -1,0 +1,248 @@
+Error 1:
+Predicted: {86}
+	86: Antonio eed Patrick
+True: {240, 86}
+	240: Antnio Ree Patrick
+	86: Antonio eed Patrick
+
+Error 2:
+Predicted: {3506, 463, 4098, 103}
+	3506: Bruce Anderson Scott
+	463: Bruce Anderson Scott
+	4098: Bruce Anderson Scott
+	103: Bruce nderson Scottt
+True: {103}
+	103: Bruce nderson Scottt
+
+Error 3:
+Predicted: {151}
+	151: Diana Jacksoon Paul
+True: {3706, 151}
+	3706: Diaa Jackson Paul
+	151: Diana Jacksoon Paul
+
+Error 4:
+Predicted: {184}
+	184: Joseph Pierce aymond
+True: {184, 2981}
+	184: Joseph Pierce aymond
+	2981: Joseph Pierce Raymod
+
+Error 5:
+Predicted: {209}
+	209: Barbaa Hunter Harry
+True: {1424, 209}
+	1424: Barbara Huntr Hary
+	209: Barbaa Hunter Harry
+
+Error 6:
+Predicted: {279}
+	279: Saa Stephens Donaldd
+True: {3168, 3414, 279}
+	3168: Sara Stepphens Donald
+	3414: Sara Stephens Dnald
+	279: Saa Stephens Donaldd
+
+Error 7:
+Predicted: {286, 1054}
+	286: Jeremy Mendoza Peter
+	1054: Jeremy Mendoz Peter
+True: {2752, 286, 1054}
+	2752: Jerremy Menoza Peter
+	286: Jeremy Mendoza Peter
+	1054: Jeremy Mendoz Peter
+
+Error 8:
+Predicted: {318}
+	318: Kevn Mcdoald Frank
+True: {1778, 318}
+	1778: Kevin Mconald Frank
+	318: Kevn Mcdoald Frank
+
+Error 9:
+Predicted: {3326, 350}
+	3326: Jerry Mills Chris
+	350: Jeemy Mills Chris
+True: {350}
+	350: Jeemy Mills Chris
+
+Error 10:
+Predicted: {365}
+	365: Eugee Coole Rady
+True: {524, 365}
+	524: Eugene Cole Randy
+	365: Eugee Coole Rady
+
+Error 11:
+Predicted: {376}
+	376: Nicoe Hamilton Jerey
+True: {376, 1383}
+	376: Nicoe Hamilton Jerey
+	1383: Nicole Hamilton eremy
+
+Error 12:
+Predicted: {390}
+	390: Larry Lan Keith
+True: {1978, 390}
+	1978: Larrry Lne Keith
+	390: Larry Lan Keith
+
+Error 13:
+Predicted: {415}
+	415: artin Knight Clarenc
+True: {2977, 415}
+	2977: Martin Knight Clarece
+	415: artin Knight Clarenc
+
+Error 14:
+Predicted: {506}
+	506: Paamela Fernndez Joseph
+True: {506, 1866}
+	506: Paamela Fernndez Joseph
+	1866: Pamela Fernandez Josephh
+
+Error 15:
+Predicted: {692, 918}
+	692: Donald Howell Howarrd
+	918: Donald Howell oward
+True: {1122, 692, 918}
+	1122: Donald Howel Howar
+	692: Donald Howell Howarrd
+	918: Donald Howell oward
+
+Error 16:
+Predicted: {771}
+	771: Andrew Tucer Ralph
+True: {1400, 771}
+	1400: Anddrew ucker Rlph
+	771: Andrew Tucer Ralph
+
+Error 17:
+Predicted: {812, 1894}
+	812: Lisa Stevens ictor
+	1894: Lisa Stevens Victoor
+True: {812, 3085, 1894}
+	812: Lisa Stevens ictor
+	3085: Lisa Steens Victor
+	1894: Lisa Stevens Victoor
+
+Error 18:
+Predicted: {837}
+	837: Samuel Miller hilip
+True: {4092, 837}
+	4092: Samuuel Miller Philp
+	837: Samuel Miller hilip
+
+Error 19:
+Predicted: {878}
+	878: Beverlly Snyde Steven
+True: {878, 3854}
+	878: Beverlly Snyde Steven
+	3854: Beverly nyder Steven
+
+Error 20:
+Predicted: {899}
+	899: Charles Mills Lawrenc
+True: {899, 1475}
+	899: Charles Mills Lawrenc
+	1475: Charles Mils Larence
+
+Error 21:
+Predicted: {1027, 1523}
+	1027: Todd Crawford Richard
+	1523: Toddd Crawfoord Rchard
+True: {1027, 1644, 1523}
+	1027: Todd Crawford Richard
+	1644: Todd Crawford Ricard
+	1523: Toddd Crawfoord Rchard
+
+Error 22:
+Predicted: {1138}
+	1138: Albert Simpson Stee
+True: {1138, 3964, 1394}
+	1138: Albert Simpson Stee
+	3964: Albert Simpsoon Steve
+	1394: Albert Simpsonn Steve
+
+Error 23:
+Predicted: {4011, 1269}
+	4011: Mariia Gibson Stevve
+	1269: Maria Gibson Steve
+True: {1610, 4011, 1269}
+	1610: Maria Gibson Stee
+	4011: Mariia Gibson Stevve
+	1269: Maria Gibson Steve
+
+Error 24:
+Predicted: {1429}
+	1429: Reecca Littlle Harry
+True: {2307, 1429}
+	2307: Rebecca Little Harry
+	1429: Reecca Littlle Harry
+
+Error 25:
+Predicted: {1474}
+	1474: Stephen Mreno Eri
+True: {1474, 1770}
+	1474: Stephen Mreno Eri
+	1770: Stephen Moreno ric
+
+Error 26:
+Predicted: {1574}
+	1574: Russeell Grham Scott
+True: {2601, 1574}
+	2601: Russell Graha Scott
+	1574: Russeell Grham Scott
+
+Error 27:
+Predicted: {1877}
+	1877: Eveln Stevens Brandn
+True: {2648, 2557, 1877}
+	2648: Evelyn Stevens Bandon
+	2557: Evelyn Stevens Brndon
+	1877: Eveln Stevens Brandn
+
+Error 28:
+Predicted: {2554, 4135}
+	2554: Philip Wheeler Todd
+	4135: Philip Wheeeler Toddd
+True: {3161, 2554, 4135}
+	3161: Philip Wheeer Todd
+	2554: Philip Wheeler Todd
+	4135: Philip Wheeeler Toddd
+
+Error 29:
+Predicted: {2587}
+	2587: Tammmy Gonzales Benjmin
+True: {2792, 2587}
+	2792: Tammy Gonzaales enjamin
+	2587: Tammmy Gonzales Benjmin
+
+Error 30:
+Predicted: {2723}
+	2723: Arthur Wrright Chrstopher
+True: {2915, 2723}
+	2915: Arthur Wrigt Christophr
+	2723: Arthur Wrright Chrstopher
+
+Error 31:
+Predicted: {3078}
+	3078: Virginia Michell Walter
+True: {3195, 3078}
+	3195: Virginia itchell Walter
+	3078: Virginia Michell Walter
+
+Error 32:
+Predicted: {3430}
+	3430: Earl Carroll Mihael
+True: {3977, 3430}
+	3977: Earl Carroll Michae
+	3430: Earl Carroll Mihael
+
+Error 33:
+Predicted: {3748}
+	3748: Eugee Hawkins Billy
+True: {3748, 4078}
+	3748: Eugee Hawkins Billy
+	4078: Eugene awkins Billy
+
