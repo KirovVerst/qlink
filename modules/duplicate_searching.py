@@ -4,7 +4,7 @@ from pathos.multiprocessing import Pool
 
 
 class Predictor:
-    def __init__(self, data, levels, list2float, comparator):
+    def __init__(self, data, levels, list2float, comparator, save_extra_data=False):
         """
         Class that provides a duplicate prediction in the dataset
         :param data: [[float, float, ...], ... ]. Matrix that shape is (n, n).
@@ -16,6 +16,9 @@ class Predictor:
         self.state = list(map(lambda level: dict(level=level, processed=set()), levels))
         self.list2float = self._list2float_norm if list2float == "norm" else self._list2float_sum
         self.comparator = self._comparator_and if comparator == "and" else self._comparator_or
+        self._save_extra_data = save_extra_data
+        if self._save_extra_data:
+            self.extra_data = dict()
 
     @staticmethod
     def _list2float_norm(values):
@@ -73,18 +76,14 @@ class Predictor:
         :return: [int, int, ...]
         """
         self.state[state_index]['processed'].add(row_index)
-        max_index = -1
-        max_distance = 0
         levels = self.state[state_index]['level']
-        for (j, e) in enumerate(self.data[row_index]):
-            if self.comparator(values=e, levels=levels) and j not in self.state[state_index]['processed']:
-                distance = self.list2float(e)
-                if distance > max_distance:
-                    max_distance = distance
-                    max_index = j
 
-        if max_index != -1:
-            return [max_index] + self.recursive_search(max_index, state_index)
+        records = list(filter(lambda x: self.comparator(values=x[1], levels=levels), enumerate(self.data[row_index])))
+        records = list(filter(lambda x: x[0] not in self.state[state_index]['processed'], records))
+        records = list(map(lambda x: (x[0], x[1], self.list2float(x[1])), records))
+        if len(records) > 0:
+            max_record = max(records, key=lambda x: x[2])
+            return [max_record[0]] + self.recursive_search(max_record[0], state_index)
         else:
             return []
 
