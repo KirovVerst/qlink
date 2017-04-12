@@ -49,31 +49,40 @@ class Logger(object):
         True:
             1: first_name1 last_name1
         :param df: 
-        :param errors: dict(items=[dict(true=[1,2], pred=[1,2,3])], level=0.7)
+        :param errors: dict(items=[dict(true=[1,2], pred=[1,2,3])], 
+                            level=0.7, 
+                            extra_data=dict($id=dict(eval_levels=[float,], according=int)))
         :return: 
         
         """
+
         folder = os.path.join(self.folder_path, str("_".join(list(map(str, errors['level'])))))
 
         if not os.path.exists(os.path.join(folder)):
             os.mkdir(folder)
 
-        with open(os.path.join(folder, "errors.txt"), 'w') as f:
+        with open(os.path.join(folder, "errors.json"), 'w') as fp:
+            items = []
             for i, d in enumerate(errors['items']):
+                item = dict(true=dict(), predicted=dict())
+
                 true_duplicates = set(d['true'])
                 pred_duplicates = set(d['predict'])
 
-                string_dict = dict()
-
-                f.write("Error {0}:\n".format(i + 1))
+                dict_of_names = dict()
 
                 for index in pred_duplicates.union(true_duplicates):
                     s = [df.iloc[index]['first_name'], df.iloc[index]['last_name'], df.iloc[index]['father']]
-                    string_dict[index] = " ".join(s)
-                f.write("Predicted: {0}\n".format(str(d['predict'])))
+                    dict_of_names[index] = " ".join(s)
+
                 for index in pred_duplicates:
-                    f.write("\t{0}: {1}\n".format(index, string_dict[index]))
-                f.write("True: {0}\n".format(str(d['true'])))
+                    item['predicted'][index] = dict(data=dict_of_names[index])
+                    if index in errors["extra_data"]:
+                        item['predicted'][index].update(errors["extra_data"][index])
+
                 for index in true_duplicates:
-                    f.write("\t{0}: {1}\n".format(index, string_dict[index]))
-                f.write("\n")
+                    item['true'][index] = dict(data=dict_of_names[index])
+                    if index in errors["extra_data"]:
+                        item['true'][index].update(errors["extra_data"][index])
+                items.append(item)
+            json.dump(dict(items=items), fp)

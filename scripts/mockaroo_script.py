@@ -17,7 +17,7 @@ except Exception as ex:
 INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 3
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
-LEVELS = list(map(lambda x: [x / 100] * 3, range(70, 80)))
+LEVELS = list(map(lambda x: [x / 100] * 3, range(67, 72)))
 LIST_2_FLOAT = "sum"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
 
@@ -40,7 +40,7 @@ def func(document_index):
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
     predictor = Predictor(data=matrix_values['values'], levels=LEVELS,
-                          list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR)
+                          list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR, save_extra_data=True)
 
     predicted_duplicates = predictor.predict_duplicates()
 
@@ -49,6 +49,7 @@ def func(document_index):
     for duplicates in predicted_duplicates:
         errors = get_differences(data.true_duplicates['items'], duplicates['items'])
         errors['level'] = duplicates['level']
+        errors['extra_data'] = duplicates['extra_data']
         level_str = str(errors['level'])
         results_grouped_by_level[level_str] = errors['number_of_errors']
 
@@ -62,7 +63,7 @@ def func(document_index):
         'dataset_size': len(data.df),
         'results': results_grouped_by_level,
         'time_delta': str(time_delta),
-        'max_dist': matrix_values['max_dist'],
+        'max_dist': str(matrix_values['max_dist']),
         'normalize': str(matrix.normalize),
         "concat": str(matrix.k == 1)
     }

@@ -29,6 +29,12 @@ class EditDistanceMatrix(object):
         self.max_dist = []
 
     def process_part(self, row_indexes=None):
+        """
+        
+        :param row_indexes: list of indexes
+        :return: ([int, int, ...], np.array)
+        """
+
         max_dist = [-1] * self.k
         if row_indexes is None:
             row_indexes = range(self.size)
@@ -94,10 +100,17 @@ class EditDistanceMatrix(object):
             with Pool(njobs) as p:
                 results = list(p.map(self.process_part, indexes))
 
-            for result in results:
-                self.x += result[1]
-            for i in range(self.k):
+            distances = np.array(list(map(lambda result: result[0], results)))
+            distances.transpose()
+
+            matrixes = list(map(lambda result: result[1], results))
+            self.x = sum(matrixes)
+
+            self.max_dist = list(map(lambda i: max(distances[i]), range(self.k)))
+            """
+                        for i in range(self.k):
                 self.max_dist.append(max(results, key=lambda k: k[0][i])[0][i])
+            """
 
         if self.normalize == "total":
             for i in range(self.k):
