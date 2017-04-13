@@ -7,14 +7,15 @@ try:
 except Exception:
     from conf_example import BASE_DIR
 
-DATASET_TYPES = {"mockaroo": os.path.join(BASE_DIR, "data", "mockaroo")}
+DATASET_TYPES = {"mockaroo": os.path.join(BASE_DIR, "data", "mockaroo"),
+                 "dedupe_mockaroo": os.path.join(BASE_DIR, "data", "mockaroo")}
 
 
 class Data(object):
-    def __init__(self, dataset_type: str, kwargs=None):
+    def __init__(self, dataset_type, kwargs=None):
         """
         
-        :param dataset_type: 
+        :param dataset_type: str
         :param kwargs: dict
         if type == "mockaroo":
             kwargs = {
