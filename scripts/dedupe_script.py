@@ -7,7 +7,7 @@ try:
 except:
     from conf_example import BASE_DIR
 
-input_file = os.path.join(BASE_DIR, "data", "mockaroo", "ready", "3000", "data_3.csv")
+input_file = os.path.join(BASE_DIR, "data", "mockaroo", "ready", "3000", "data_1.csv")
 output_file = os.path.join(BASE_DIR, "logs",
                            "output-{0}.csv".format(datetime.datetime.now().strftime("%d-%m-%y_%H_%M_%S")))
 settings_file = os.path.join(BASE_DIR, "data", "mockaroo", "train", 'learned_settings')
@@ -35,7 +35,7 @@ fields = [
 
 deduper = dedupe.Dedupe(fields)
 
-deduper.sample(data_d, 100)
+deduper.sample(data_d, 1000)
 
 if os.path.exists(training_file):
     print('reading labeled examples from ', training_file)
@@ -97,5 +97,5 @@ with open(output_file, 'w') as f_output, open(input_file) as f_input:
         writer.writerow(row)
 
 df = pd.read_csv(output_file)
-df.sort(columns=['Cluster ID'], inplace=True)
+df.sort_values(by=["Cluster ID"], inplace=True)
 df.to_csv(output_file, index=False)
