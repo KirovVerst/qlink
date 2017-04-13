@@ -13,3 +13,6 @@ python-dateutil==2.6.0
 pytz==2016.10
 six==1.10.0
 SQLAlchemy==1.1.9
+dedupe
+Unidecode==0.4.16
+future
