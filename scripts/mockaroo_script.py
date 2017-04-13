@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from modules.dataset_receiving import Data
 from modules.duplicate_searching import Predictor
-from modules.result_estimation import get_differences
+from modules.result_estimation import get_differences, get_accuracy
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
 
@@ -51,7 +51,9 @@ def func(document_index):
         errors['level'] = duplicates['level']
         errors['extra_data'] = duplicates['extra_data']
         level_str = str(errors['level'])
-        results_grouped_by_level[level_str] = errors['number_of_errors']
+        results_grouped_by_level[level_str] = dict(errors=errors['number_of_errors'],
+                                                   accuracy=get_accuracy(n_errors=errors['number_of_errors'],
+                                                                         n_records=len(data.df)))
 
         logger.save_errors(df=data.df, errors=errors)
 
@@ -67,10 +69,9 @@ def func(document_index):
         'normalize': str(matrix.normalize),
         "concat": str(matrix.k == 1)
     }
-
-    print("Dataset {0} is ready: \t\t{1}".format(document_index + 1, datetime.datetime.now()))
-    print("Time delta: {0}".format(str(time_delta)))
     pprint.pprint(current_meta_data['results'])
+    print("Dataset {0} is ready: \t\t{1}".format(document_index + 1, datetime.datetime.now()))
+    print("Time delta: {0}\n\n".format(str(time_delta)))
 
     logger.save_data(data=current_meta_data)
 
@@ -85,16 +86,23 @@ if __name__ == "__main__":
 
     total_time = datetime.timedelta()
     total_number_of_errors = 0
-    total_result = defaultdict(int)
+
+    average_result = defaultdict(dict)
     for i in range(DOCUMENT_NUMBER):
         result = func(i)
         for level, value in result.items():
-            total_result[level] += value
+            try:
+                average_result[level]['errors'] += value['errors']
+                average_result[level]['accuracy'] += value['accuracy']
+            except:
+                average_result[level]['errors'] = value['errors']
+                average_result[level]['accuracy'] = value['accuracy']
 
     print("-" * 80)
 
-    for key in total_result:
-        total_result[key] /= DOCUMENT_NUMBER
+    for key in average_result.keys():
+        average_result[key]['accuracy'] /= DOCUMENT_NUMBER
+        average_result[key]['errors'] /= DOCUMENT_NUMBER
 
     meta_data = {
         "number_of_datasets": DOCUMENT_NUMBER,
@@ -103,7 +111,7 @@ if __name__ == "__main__":
         "levels": LEVELS,
         "list2float_function": LIST_2_FLOAT,
         "record_comparision_function": RECORD_COMPARATOR,
-        "average_number_of_errors": dict(total_result.items()),
+        "average_results": dict(average_result.items()),
         "total_time": str(datetime.datetime.now() - START_TIME),
     }
     pprint.pprint(meta_data)

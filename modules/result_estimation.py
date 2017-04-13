@@ -63,3 +63,7 @@ def get_differences(true, predict):
         'items': errors,
         'number_of_errors': result / 2
     }
+
+
+def get_accuracy(n_errors, n_records, n_digits=3):
+    return round((n_records - n_errors) / n_records, n_digits)
