@@ -11,7 +11,7 @@ from modules.record_processing import get_strings
 class EditDistanceMatrix(object):
     def __init__(self, df, column_names,
                  edit_distance_func=levenshtein_edit_distance,
-                 normalize="total",
+                 normalize="sum",
                  concat=False):
         """
         
@@ -26,7 +26,7 @@ class EditDistanceMatrix(object):
         self.df = df
         self.column_names = column_names
         self.k = 1 if concat else len(column_names)
-        self.x = np.zeros((self.size, self.size, self.k))
+        self.x = defaultdict(list)
         self.func = edit_distance_func
         self.normalize = normalize
         self.max_dist = []
@@ -45,8 +45,12 @@ class EditDistanceMatrix(object):
 
         for i in row_indexes:
             s1 = get_strings(self.df.iloc[i], self.column_names, concat=self.k == 1)
+            first_name = self.df.iloc[i]['first_name']
+            for j in self.first_name_indexes[first_name]:
 
-            for j in range(i + 1, self.size):
+                if j == i:
+                    continue
+
                 s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
 
                 distance = []
@@ -63,11 +67,12 @@ class EditDistanceMatrix(object):
                         distance.append(current_dist)
 
                     max_dist[i1] = max(max_dist[i1], current_dist)
+                if (j, distance) not in self.x[i]:
+                    self.x[i].append((j, distance))
+                if (i, distance) not in self.x[j]:
+                    self.x[j].append((i, distance))
 
-                self.x[i][j] = distance
-                self.x[j][i] = distance
-
-        return max_dist, np.array(self.x)
+        return max_dist, self.x
 
     def get_ids(self, njobs):
         r = self.size % njobs
@@ -108,19 +113,22 @@ class EditDistanceMatrix(object):
                 results = list(p.map(self.process_part, indexes))
 
             distances = np.array(list(map(lambda result: result[0], results)))
-            distances.transpose()
+            distances = distances.transpose()
 
             matrixes = list(map(lambda result: result[1], results))
-            self.x = sum(matrixes)
+            for matrix in matrixes:
+                for k, v in matrix.items():
+                    self.x[k].extend(v)
 
             self.max_dist = list(map(lambda i: max(distances[i]), range(self.k)))
-
+        """
         if self.normalize == "total":
             for i in range(self.k):
                 if self.max_dist[i] != 0:
                     self.x[:, :, i] = (self.max_dist[i] - self.x[:, :, i]) / self.max_dist[i]
                 else:
                     self.x[:, :, i] = np.ones((self.size, self.size))
+        """
 
         return {
             'values': self.x,
@@ -132,4 +140,4 @@ class EditDistanceMatrix(object):
         for row_id, row in self.df.iterrows():
             first_name = row['first_name']
             list_valid_ids = self.df[self.df['first_name'].str.contains(first_name)].index.values.tolist()
-            self.first_name_indexes[first_name] = list_valid_ids
+            self.first_name_indexes[first_name] = list(set(self.first_name_indexes[first_name] + list_valid_ids))
