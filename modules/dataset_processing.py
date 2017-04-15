@@ -1,5 +1,8 @@
 import numpy as np
 import os
+
+from collections import defaultdict
+
 from pathos.multiprocessing import Pool
 from modules.record_metrics import levenshtein_edit_distance
 from modules.record_processing import get_strings
@@ -18,7 +21,7 @@ class EditDistanceMatrix(object):
         :param normalize: str. ``max``, ``sum``, ``total``, None
         :param concat: 
         """
-
+        self.index_field = 'first_name'
         self.size = len(df)
         self.df = df
         self.column_names = column_names
@@ -27,6 +30,7 @@ class EditDistanceMatrix(object):
         self.func = edit_distance_func
         self.normalize = normalize
         self.max_dist = []
+        self._init_first_name_index()
 
     def process_part(self, row_indexes=None):
         """
@@ -40,29 +44,32 @@ class EditDistanceMatrix(object):
             row_indexes = range(self.size)
 
         for i in row_indexes:
-            s1 = get_strings(self.df.iloc[i], self.column_names, self.k == 1)
+            s1 = get_strings(self.df.iloc[i], self.column_names, concat=self.k == 1)
+
             for j in range(i + 1, self.size):
                 s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
-                d = []
+
+                distance = []
+
                 for i1 in range(self.k):
                     current_dist = self.func(s1[i1], s2[i1])
                     if self.normalize == "max":
                         max_d = max(len(s1[i1]), len(s2[i1]))
-                        d.append((max_d - current_dist) / max_d)
+                        distance.append((max_d - current_dist) / max_d)
                     elif self.normalize == "sum":
                         max_d = len(s1[i1]) + len(s2[i1])
-                        d.append((max_d - current_dist) / max_d)
+                        distance.append((max_d - current_dist) / max_d)
                     else:
-                        d.append(current_dist)
+                        distance.append(current_dist)
 
                     max_dist[i1] = max(max_dist[i1], current_dist)
 
-                self.x[i][j] = d
-                self.x[j][i] = d
+                self.x[i][j] = distance
+                self.x[j][i] = distance
 
         return max_dist, np.array(self.x)
 
-    def get_row_indexes(self, njobs):
+    def get_ids(self, njobs):
         r = self.size % njobs
         matrix = np.reshape(np.arange(0, self.size - r), (-1, njobs))
         matrix = matrix.transpose().tolist()
@@ -95,7 +102,7 @@ class EditDistanceMatrix(object):
         else:
             if njobs == -1:
                 njobs = os.cpu_count()
-            indexes = self.get_row_indexes(njobs)
+            indexes = self.get_ids(njobs)
 
             with Pool(njobs) as p:
                 results = list(p.map(self.process_part, indexes))
@@ -107,10 +114,6 @@ class EditDistanceMatrix(object):
             self.x = sum(matrixes)
 
             self.max_dist = list(map(lambda i: max(distances[i]), range(self.k)))
-            """
-                        for i in range(self.k):
-                self.max_dist.append(max(results, key=lambda k: k[0][i])[0][i])
-            """
 
         if self.normalize == "total":
             for i in range(self.k):
@@ -123,3 +126,10 @@ class EditDistanceMatrix(object):
             'values': self.x,
             'max_dist': self.max_dist
         }
+
+    def _init_first_name_index(self):
+        self.first_name_indexes = defaultdict(list)
+        for row_id, row in self.df.iterrows():
+            first_name = row['first_name']
+            list_valid_ids = self.df[self.df['first_name'].str.contains(first_name)].index.values.tolist()
+            self.first_name_indexes[first_name] = list_valid_ids
