@@ -133,8 +133,13 @@ class EditDistanceMatrix(object):
 
     def _init_first_name_index(self):
         self.df['first_name'] = self.df['first_name'].apply(remove_double_letters)
+        self.df['last_name'] = self.df['last_name'].apply(remove_double_letters)
         self.first_name_indexes = defaultdict(list)
         for row_id, row in self.df.iterrows():
             first_name = row['first_name']
-            list_valid_ids = self.df[self.df['first_name'].str.contains(first_name)].index.values.tolist()
-            self.first_name_indexes[first_name] = list(set(self.first_name_indexes[first_name] + list_valid_ids))
+            last_name = row['last_name']
+            list_valid_ids1 = self.df[self.df['first_name'].str.contains(first_name)].index.values.tolist()
+            list_valid_ids2 = self.df[self.df['last_name'].str.contains(last_name)].index.values.tolist()
+
+            self.first_name_indexes[first_name] = list(
+                set(self.first_name_indexes[first_name] + list_valid_ids1 + list_valid_ids2))

@@ -17,10 +17,11 @@ except Exception as ex:
 INITIAL_DATA_SIZE = 1000
 DOCUMENT_NUMBER = 1
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
-LEVELS = list(map(lambda x: [x / 100] * 3, range(70, 85)))
+LEVELS = list(map(lambda x: [x / 100] * 3, range(80, 84)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
 NJOBS = -1
+
 
 def func(document_index):
     current_time = datetime.datetime.now()
@@ -47,8 +48,7 @@ def func(document_index):
     print("Duplicates were predicted: \t{}".format(datetime.datetime.now()))
 
     for duplicates in predicted_duplicates:
-        duplicate_items = list(map(lambda x: sorted(x), duplicates['items']))
-        duplicate_items = sorted(duplicate_items, key=lambda x: x[0])
+        duplicate_items = sorted(duplicates['items'], key=lambda x: min(x))
         errors = get_differences(data.true_duplicates['items'], duplicate_items)
         errors['level'] = duplicates['level']
         errors['extra_data'] = duplicates['extra_data']
