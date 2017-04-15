@@ -20,7 +20,7 @@ COLUMN_NAMES = ['first_name', 'last_name', 'father']
 LEVELS = list(map(lambda x: [x / 100] * 3, range(70, 85)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
-
+NJOBS = -1
 
 def func(document_index):
     current_time = datetime.datetime.now()
@@ -30,8 +30,8 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES, concat=False, normalize="sum")
-    matrix_values = matrix.get()
+    matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES, concat=False, normalize="total")
+    matrix_values = matrix.get(NJOBS)
 
     print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
 
@@ -42,12 +42,14 @@ def func(document_index):
     predictor = Predictor(data=matrix_values['values'], levels=LEVELS,
                           list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR, save_extra_data=True)
 
-    predicted_duplicates = predictor.predict_duplicates()
+    predicted_duplicates = predictor.predict_duplicates(NJOBS)
 
     print("Duplicates were predicted: \t{}".format(datetime.datetime.now()))
 
     for duplicates in predicted_duplicates:
-        errors = get_differences(data.true_duplicates['items'], duplicates['items'])
+        duplicate_items = list(map(lambda x: sorted(x), duplicates['items']))
+        duplicate_items = sorted(duplicate_items, key=lambda x: x[0])
+        errors = get_differences(data.true_duplicates['items'], duplicate_items)
         errors['level'] = duplicates['level']
         errors['extra_data'] = duplicates['extra_data']
         level_str = str(errors['level'])

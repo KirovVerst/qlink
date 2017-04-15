@@ -113,5 +113,4 @@ class Predictor:
         else:
             with Pool(njobs) as p:
                 results = list(p.map(self._predict_for_one_level, range(len(self.state))))
-
         return results

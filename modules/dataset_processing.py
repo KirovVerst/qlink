@@ -2,10 +2,10 @@ import numpy as np
 import os
 
 from collections import defaultdict
-
 from pathos.multiprocessing import Pool
+
 from modules.record_metrics import levenshtein_edit_distance
-from modules.record_processing import get_strings
+from modules.record_processing import get_strings, remove_double_letters
 
 
 class EditDistanceMatrix(object):
@@ -48,9 +48,6 @@ class EditDistanceMatrix(object):
             first_name = self.df.iloc[i]['first_name']
             for j in self.first_name_indexes[first_name]:
 
-                if j == i:
-                    continue
-
                 s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
 
                 distance = []
@@ -68,9 +65,9 @@ class EditDistanceMatrix(object):
 
                     max_dist[i1] = max(max_dist[i1], current_dist)
                 if (j, distance) not in self.x[i]:
-                    self.x[i].append((j, distance))
+                    self.x[i].append((j, distance.copy()))
                 if (i, distance) not in self.x[j]:
-                    self.x[j].append((i, distance))
+                    self.x[j].append((i, distance.copy()))
 
         return max_dist, self.x
 
@@ -121,21 +118,21 @@ class EditDistanceMatrix(object):
                     self.x[k].extend(v)
 
             self.max_dist = list(map(lambda i: max(distances[i]), range(self.k)))
-        """
-        if self.normalize == "total":
-            for i in range(self.k):
-                if self.max_dist[i] != 0:
-                    self.x[:, :, i] = (self.max_dist[i] - self.x[:, :, i]) / self.max_dist[i]
-                else:
-                    self.x[:, :, i] = np.ones((self.size, self.size))
-        """
 
+        positions = list(filter(lambda i: self.max_dist[i] != 0, range(self.k)))
+        if len(positions) != 0:
+            if self.normalize == "total":
+                for row_id in self.x.keys():
+                    for i in range(len(self.x[row_id])):
+                        for j in positions:
+                            self.x[row_id][i][1][j] = (self.max_dist[j] - self.x[row_id][i][1][j]) / self.max_dist[j]
         return {
             'values': self.x,
             'max_dist': self.max_dist
         }
 
     def _init_first_name_index(self):
+        self.df['first_name'] = self.df['first_name'].apply(remove_double_letters)
         self.first_name_indexes = defaultdict(list)
         for row_id, row in self.df.iterrows():
             first_name = row['first_name']
