@@ -11,7 +11,7 @@ from modules.record_processing import get_strings, remove_double_letters
 class EditDistanceMatrix(object):
     def __init__(self, df, column_names,
                  edit_distance_func=levenshtein_edit_distance,
-                 normalize="sum",
+                 normalize="sum", index_fields=None,
                  concat=False):
         """
         
@@ -21,7 +21,6 @@ class EditDistanceMatrix(object):
         :param normalize: str. ``max``, ``sum``, ``total``, None
         :param concat: 
         """
-        self.index_field = 'first_name'
         self.size = len(df)
         self.df = df
         self.column_names = column_names
@@ -30,7 +29,7 @@ class EditDistanceMatrix(object):
         self.func = edit_distance_func
         self.normalize = normalize
         self.max_dist = []
-        self._init_first_name_index()
+        self._init_index(index_fields)
 
     def process_part(self, row_indexes=None):
         """
@@ -43,10 +42,24 @@ class EditDistanceMatrix(object):
         if row_indexes is None:
             row_indexes = range(self.size)
 
+        field_names = self.index_dict.keys()
+
         for i in row_indexes:
+            available_row_ids = list()
+            for field_name in field_names:
+                field_value = self.df.iloc[i][field_name]
+                available_row_ids += self.index_dict[field_name][field_value]
+
+            available_row_ids = list(set(available_row_ids))
+
             s1 = get_strings(self.df.iloc[i], self.column_names, concat=self.k == 1)
-            first_name = self.df.iloc[i]['first_name']
-            for j in self.first_name_indexes[first_name]:
+
+            for j in available_row_ids:
+                """
+                if i == j:
+                    continue
+                """
+
 
                 s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
 
@@ -93,10 +106,6 @@ class EditDistanceMatrix(object):
             }
             """
 
-        """
-        Levenshtein distance calculation
-        """
-
         if njobs == 1:
             max_dist, x = self.process_part()
             self.x = x
@@ -131,15 +140,17 @@ class EditDistanceMatrix(object):
             'max_dist': self.max_dist
         }
 
-    def _init_first_name_index(self):
-        self.df['first_name'] = self.df['first_name'].apply(remove_double_letters)
-        self.df['last_name'] = self.df['last_name'].apply(remove_double_letters)
-        self.first_name_indexes = defaultdict(list)
-        for row_id, row in self.df.iterrows():
-            first_name = row['first_name']
-            last_name = row['last_name']
-            list_valid_ids1 = self.df[self.df['first_name'].str.contains(first_name)].index.values.tolist()
-            list_valid_ids2 = self.df[self.df['last_name'].str.contains(last_name)].index.values.tolist()
+    def _init_index(self, index_fields):
+        if index_fields is None:
+            index_fields = ['first_name']
+        self.index_dict = dict()
+        for field_name in index_fields:
+            self.df[field_name] = self.df[field_name].apply(remove_double_letters)
+            self.index_dict[field_name] = defaultdict(list)
 
-            self.first_name_indexes[first_name] = list(
-                set(self.first_name_indexes[first_name] + list_valid_ids1 + list_valid_ids2))
+        for row_id, row in self.df.iterrows():
+            for field_name in index_fields:
+                field_value = row[field_name]
+                rows = self.df[self.df[field_name].str.contains(field_value)].index.values.tolist()
+
+                self.index_dict[field_name][field_value] = list(set(rows + self.index_dict[field_name][field_value]))
