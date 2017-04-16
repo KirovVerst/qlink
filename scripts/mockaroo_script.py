@@ -15,12 +15,12 @@ except Exception as ex:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 1
+DOCUMENT_NUMBER = 3
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
 LEVELS = list(map(lambda x: [x / 100] * 3, range(75, 85)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
-INDEX_FIELDS = None  # None, ['first_name']
+INDEX_FIELDS = ['first_name', 'last_name', 'father']  # None, ['first_name']
 NJOBS = 1
 
 

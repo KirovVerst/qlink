@@ -52,6 +52,7 @@ class EditDistanceMatrix(object):
             available_row_ids = list(range(i + 1, len(self.df)))
 
             if self.index_dict is not None:
+                available_row_ids = list()
                 for field_name in field_names:
                     field_value = self.df.iloc[i][field_name]
                     available_row_ids += self.index_dict[field_name][field_value]
