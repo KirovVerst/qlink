@@ -14,13 +14,14 @@ try:
 except Exception as ex:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 1000
-DOCUMENT_NUMBER = 12
+INITIAL_DATA_SIZE = 100
+DOCUMENT_NUMBER = 1
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
 LEVELS = list(map(lambda x: [x / 100] * 3, range(75, 85)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
-NJOBS = -1
+INDEX_FIELDS = None  # None, ['first_name']
+NJOBS = 1
 
 
 def func(document_index):
@@ -32,7 +33,7 @@ def func(document_index):
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
     matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES,
-                                concat=False, normalize="total", index_fields=['first_name', 'last_name', 'father'])
+                                concat=False, normalize="total", index_fields=INDEX_FIELDS)
     matrix_values = matrix.get(NJOBS)
 
     print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))

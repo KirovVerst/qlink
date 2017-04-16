@@ -29,7 +29,10 @@ class EditDistanceMatrix(object):
         self.func = edit_distance_func
         self.normalize = normalize
         self.max_dist = []
-        self._init_index(index_fields)
+        # index dictionary
+        self.index_dict = None
+        if index_fields is not None:
+            self._init_index(index_fields)
 
     def process_part(self, row_indexes=None):
         """
@@ -42,24 +45,22 @@ class EditDistanceMatrix(object):
         if row_indexes is None:
             row_indexes = range(self.size)
 
-        field_names = self.index_dict.keys()
+        if self.index_dict is not None:
+            field_names = self.index_dict.keys()
 
         for i in row_indexes:
-            available_row_ids = list()
-            for field_name in field_names:
-                field_value = self.df.iloc[i][field_name]
-                available_row_ids += self.index_dict[field_name][field_value]
+            available_row_ids = list(range(i + 1, len(self.df)))
 
-            available_row_ids = list(set(available_row_ids))
+            if self.index_dict is not None:
+                for field_name in field_names:
+                    field_value = self.df.iloc[i][field_name]
+                    available_row_ids += self.index_dict[field_name][field_value]
+
+                available_row_ids = list(set(available_row_ids))
 
             s1 = get_strings(self.df.iloc[i], self.column_names, concat=self.k == 1)
 
             for j in available_row_ids:
-                """
-                if i == j:
-                    continue
-                """
-
 
                 s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
 
