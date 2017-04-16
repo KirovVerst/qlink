@@ -17,9 +17,11 @@ except Exception as ex:
 INITIAL_DATA_SIZE = 100
 DOCUMENT_NUMBER = 3
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
-LEVELS = list(map(lambda x: [x / 100] * 3, range(67, 72)))
-LIST_2_FLOAT = "sum"  # "norm", "sum"
+LEVELS = list(map(lambda x: [x / 100] * 3, range(75, 85)))
+LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
+INDEX_FIELDS = ['first_name', 'last_name', 'father']  # None, ['first_name']
+NJOBS = 1
 
 
 def func(document_index):
@@ -30,8 +32,9 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES, concat=False, normalize="total")
-    matrix_values = matrix.get()
+    matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES,
+                                concat=False, normalize="total", index_fields=INDEX_FIELDS)
+    matrix_values = matrix.get(NJOBS)
 
     print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
 
@@ -42,12 +45,13 @@ def func(document_index):
     predictor = Predictor(data=matrix_values['values'], levels=LEVELS,
                           list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR, save_extra_data=True)
 
-    predicted_duplicates = predictor.predict_duplicates()
+    predicted_duplicates = predictor.predict_duplicates(NJOBS)
 
     print("Duplicates were predicted: \t{}".format(datetime.datetime.now()))
 
     for duplicates in predicted_duplicates:
-        errors = get_differences(data.true_duplicates['items'], duplicates['items'])
+        duplicate_items = sorted(duplicates['items'], key=lambda x: min(x))
+        errors = get_differences(data.true_duplicates['items'], duplicate_items)
         errors['level'] = duplicates['level']
         errors['extra_data'] = duplicates['extra_data']
         level_str = str(errors['level'])
