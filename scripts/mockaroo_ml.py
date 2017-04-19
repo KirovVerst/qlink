@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np
 import os
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import SGDClassifier
+from sklearn.svm import SVC
 
 try:
     from conf import BASE_DIR
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     data.drop(['match'], axis=1, inplace=True)
     X_train, X_test, y_train, y_test = train_test_split(data, y, test_size=0.2, random_state=42)
-    clf = SGDClassifier()
+    clf = SVC()
     clf.fit(X=X_train, y=y_train)
     y_pred = clf.predict(X_test)
     acc = np.mean(y_test == y_pred)
