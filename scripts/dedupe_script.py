@@ -10,8 +10,8 @@ try:
 except:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 1000
-DOCUMENT_INDEX = 12
+INITIAL_DATA_SIZE = 3000
+DOCUMENT_INDEX = 0
 
 FIELDS = [
     {'field': 'first_name', 'type': 'String'},
