@@ -19,8 +19,3 @@ def get_strings(row, column_names, concat):
     if concat:
         s = ["".join(s)]
     return s
-
-
-"""
-Phonetic algorithms are coming ... 
-"""
