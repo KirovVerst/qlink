@@ -10,8 +10,12 @@ except:
 
 JSON_TRAIN_DATA_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'ml', 'train.json')
 CSV_TRAIN_DATA_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'ml', 'train.csv')
-STR_FIELDS = ['first_name', 'last_name', 'father']
+INIT_STR_FIELDS = ['first_name', 'last_name', 'father']
+STR_FIELDS = ['first_name', 'first_name_len_1', 'first_name_len_2',
+              'last_name', 'last_name_len_1', 'last_name_len_2',
+              'father', 'father_len_1', 'father_len_2']
 CATEGORY_FIELDS = ['gender']
+
 FIELDS = STR_FIELDS + CATEGORY_FIELDS + ['match']
 
 
@@ -91,11 +95,11 @@ def get_row(raw_data, match):
     """
     raw_data = raw_data['__value__']
     result = []
-    for field_name in STR_FIELDS:
+    for field_name in INIT_STR_FIELDS:
         field_value_0 = raw_data[0][field_name]
         field_value_1 = raw_data[1][field_name]
         metric = levenshtein_edit_distance(field_value_0, field_value_1, normal='sum')
-        result.append(metric)
+        result += [metric, len(field_value_0), len(field_value_1)]
     for field_name in CATEGORY_FIELDS:
         result.append(int(raw_data[0][field_name] == raw_data[1][field_name]))
     result.append(match)
