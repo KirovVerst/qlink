@@ -112,4 +112,4 @@ if __name__ == '__main__':
     match_row = list(map(lambda pair: get_row(pair, match=1), raw_data['match']))
     rows = distinct_rows + match_row
     df = pd.DataFrame(rows, columns=FIELDS)
-    df.to_csv(path_or_buf=CSV_TRAIN_DATA_PATH, index_label='id')
+    df.to_csv(path_or_buf=CSV_TRAIN_DATA_PATH, index=False)
