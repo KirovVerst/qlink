@@ -8,12 +8,15 @@ try:
 except:
     from conf_example import BASE_DIR
 
-JSON_TRAIN_DATA_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'ml', 'train.json')
+JSON_TRAIN_DATA_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'dedupe', 'train', 'training_dataset.json')
 CSV_TRAIN_DATA_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'ml', 'train.csv')
+
 INIT_STR_FIELDS = ['first_name', 'last_name', 'father']
+
 STR_FIELDS = ['first_name', 'first_name_len_1', 'first_name_len_2',
               'last_name', 'last_name_len_1', 'last_name_len_2',
               'father', 'father_len_1', 'father_len_2']
+
 CATEGORY_FIELDS = ['gender']
 
 FIELDS = STR_FIELDS + CATEGORY_FIELDS + ['match']
