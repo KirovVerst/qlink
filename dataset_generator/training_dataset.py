@@ -73,30 +73,26 @@ def get_read_raw_data():
             return data
 
 
-def get_row(raw_data, match):
+def get_row(raw_data, match=None):
     """
     
-    :param raw_data: {
-                '__class__': "tuple",
-                '__value__': [
-                    {
-                      "first_name": "ulia",
-                      "last_name": "Buurke",
-                      "gender": "F",
-                      "father": "Chrisopher"
-                    },
-                    {
-                      "first_name": "RRalph",
-                      "last_name": "Marshal",
-                      "gender": "M",
-                      "father": "Chrisopher"
-                    }
-                ]
-            }
+    :param raw_data:[
+                        {
+                          "first_name": "ulia",
+                          "last_name": "Buurke",
+                          "gender": "F",
+                          "father": "Chrisopher"
+                        },
+                        {
+                          "first_name": "RRalph",
+                          "last_name": "Marshal",
+                          "gender": "M",
+                          "father": "Chrisopher"
+                        }
+                    ]
     :param match: bool
     :return: []
     """
-    raw_data = raw_data['__value__']
     result = []
     for field_name in INIT_STR_FIELDS:
         field_value_0 = raw_data[0][field_name]
@@ -105,14 +101,15 @@ def get_row(raw_data, match):
         result += [metric, len(field_value_0), len(field_value_1)]
     for field_name in CATEGORY_FIELDS:
         result.append(int(raw_data[0][field_name] == raw_data[1][field_name]))
-    result.append(match)
+    if match is not None:
+        result.append(match)
     return result
 
 
 if __name__ == '__main__':
     raw_data = get_read_raw_data()
-    distinct_rows = list(map(lambda pair: get_row(pair, match=0), raw_data['distinct']))
-    match_row = list(map(lambda pair: get_row(pair, match=1), raw_data['match']))
+    distinct_rows = list(map(lambda pair: get_row(pair['__value__'], match=0), raw_data['distinct']))
+    match_row = list(map(lambda pair: get_row(pair['__value__'], match=1), raw_data['match']))
     rows = distinct_rows + match_row
     df = pd.DataFrame(rows, columns=FIELDS)
     df.to_csv(path_or_buf=CSV_TRAIN_DATA_PATH, index=False)

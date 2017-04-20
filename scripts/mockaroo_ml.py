@@ -1,50 +1,58 @@
-import pandas as pd, numpy as np
-import os
 import pickle
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
+import numpy as np
 
-try:
-    from conf import BASE_DIR
-except:
-    from conf_example import BASE_DIR
-
-TRAIN_DATA_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'ml', 'train.csv')
-CLASSIFIER_PATH = os.path.join(BASE_DIR, 'data', 'mockaroo', 'ml', 'classifier.pkl')
-DEV_MODE = False
+from dataset_generator.training_dataset import get_row
+from dataset_generator.classifier_training import CLASSIFIER_PATH
+from modules.dataset_receiving import Data
+from modules.result_estimation import get_differences, get_accuracy
 
 
-def development(data, target, classifier):
-    x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.2, random_state=42)
-    classifier.fit(X=x_train, y=y_train)
-    y_pred = classifier.predict(x_test)
-    acc = np.mean(y_test == y_pred)
-    print(acc)
+def get_classifier():
+    with open(CLASSIFIER_PATH, 'rb') as f:
+        clf = pickle.load(f)
+    return clf
 
 
-def production(data, target, classifier):
-    classifier.fit(data, target)
-    with open(CLASSIFIER_PATH, 'wb') as output:
-        pickle.dump(classifier, output, pickle.HIGHEST_PROTOCOL)
+def get_raw_data(initial_size, document_index):
+    kwargs = {'init_data_size': initial_size, 'document_index': document_index}
+    data = Data(dataset_type='mockaroo', kwargs=kwargs)
+    X = data.df.to_dict(orient='index')
+    duplicates = data.true_duplicates
+    return X, duplicates
 
 
-def get_ready_data(df):
-    y = df['match']
-    for column_name in ['first_name_len_1', 'first_name_len_2',
-                        'last_name_len_1', 'last_name_len_2',
-                        'father_len_1', 'father_len_2']:
-        df[column_name].apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
+def predict_duplicates(X, clf):
+    results = []
+    processed = set()
+    ids = list(X.keys())
+    for i in range(len(ids)):
+        if i in processed:
+            continue
+        processed.add(i)
+        duplicates = [ids[i]]
+        row1 = X[ids[i]]
+        for j in range(i + 1, len(ids)):
+            if j in processed:
+                continue
+            processed.add(j)
 
-    df.drop(['match'], axis=1, inplace=True)
-    return df, y
+            row2 = X[ids[j]]
+            r = get_row([row1, row2])
+            r = np.array(r).reshape(1, -1)
+            prediction = clf.predict(r)
+            if prediction == 1:
+                duplicates.append(ids[j])
+        results.append(duplicates)
+    return results
 
 
 if __name__ == "__main__":
-    dataframe = pd.read_csv(TRAIN_DATA_PATH)
-    data, y = get_ready_data(dataframe)
-    clf = SVC()
-
-    if DEV_MODE:
-        development(data=data, target=y, classifier=clf)
-    else:
-        production(data=data, target=y, classifier=clf)
+    classifier = get_classifier()
+    initial_size = 1000
+    for i in range(1):
+        X, true_duplicates = get_raw_data(initial_size, i)
+        pred_duplicates = predict_duplicates(X, classifier)
+        diff = get_differences(true_duplicates['items'], pred_duplicates)
+        print("Dataset {}".format(i + 1))
+        print("Number of errors: {}".format(diff['number_of_errors']))
+        print("Accuracy: {}".format(get_accuracy(diff['number_of_errors'], len(X.keys()))))
