@@ -6,6 +6,7 @@ from pathos.multiprocessing import Pool
 from collections import defaultdict
 from conf import BASE_DIR
 from modules.dataset_processing import EditDistanceMatrix
+from modules.duplicate_searching import Predictor
 
 MIAC_SMALL_FOLDER = os.path.join(BASE_DIR, 'data', 'miac', 'small')
 MIAC_SMALL_DATA = {
@@ -14,13 +15,21 @@ MIAC_SMALL_DATA = {
         'data': os.path.join(MIAC_SMALL_FOLDER, 'data-sample.csv'),
         'matrix': os.path.join(MIAC_SMALL_FOLDER, 'matrix-sample.json'),
         'index': os.path.join(MIAC_SMALL_FOLDER, 'index-sample.json'),
-        'norm-matrix': os.path.join(MIAC_SMALL_FOLDER, 'norm-matrix-sample.json')
+        'norm-matrix': os.path.join(MIAC_SMALL_FOLDER, 'norm-matrix-sample.json'),
+        'duplicates': os.path.join(MIAC_SMALL_FOLDER, 'duplicates-sample.json')
     }
 }
 
 STR_FIELDS = ['first_name', 'last_name', 'father_name']
 DATE_FIELDS = ['birthday']
 FIELDS = STR_FIELDS + DATE_FIELDS
+
+
+def row_to_str(row):
+    r = ''
+    for field in STR_FIELDS + DATE_FIELDS:
+        r += str(row[field]) + ' '
+    return r
 
 
 def get_lengths(row):
@@ -174,5 +183,35 @@ class Normalization:
 
         with open(self.output_path, 'w') as fp:
             json.dump(norm_matrix, fp)
+
+        finish_message(s)
+
+
+class DuplicateSearching:
+    def __init__(self, dataframe, norm_matrix_path, duplicates_output_path):
+        self.dataframe = dataframe
+        with open(norm_matrix_path, 'r') as f:
+            self.matrix = json.load(f)
+        self.output_path = duplicates_output_path
+
+    def search_duplicates(self, level):
+        s = start_message('Duplicate searching')
+
+        predictor = Predictor(data=self.matrix, levels=[[level] * len(FIELDS)], list2float='norm', comparator='and',
+                              save_extra_data=False)
+        duplicates_list = predictor.predict_duplicates(njobs=1)
+        extended_duplicates_list = []
+        for duplicates in duplicates_list:
+            items = duplicates['items']
+            for keys in items:
+                keys = list(set(map(lambda x: int(x), keys)))
+                info = dict()
+                for key in keys:
+                    info[key] = row_to_str(self.dataframe.loc[key])
+                extended_duplicates_list.append(info)
+
+        duplicates_list[0]['items'] = extended_duplicates_list
+        with open(self.output_path, 'w') as fp:
+            json.dump(duplicates_list, fp, ensure_ascii=False)
 
         finish_message(s)
