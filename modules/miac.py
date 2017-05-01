@@ -23,6 +23,16 @@ DATE_FIELDS = ['birthday']
 FIELDS = STR_FIELDS + DATE_FIELDS
 
 
+def get_lengths(row):
+    lengths = []
+    for field in FIELDS:
+        if isinstance(row[field], str):
+            lengths.append(len(row[field]))
+        else:
+            lengths.append(None)
+    return lengths
+
+
 def start_message(step_name):
     s = datetime.datetime.now()
     print('-' * 80)
@@ -48,7 +58,9 @@ def rearrange_list(values, n):
     rearranged_values = rearranged_values.transpose()
     rearranged_values = rearranged_values.tolist()
     if r > 0:
-        rearranged_values[0] += values[-r:].tolist()
+        if not isinstance(values, list):
+            values = values.tolist()
+        rearranged_values[0] += values[-r:]
     return rearranged_values
 
 
@@ -109,4 +121,58 @@ class MatrixCalculation:
         matrix = matrix_generator.get()
         with open(self.output_path, 'w') as fp:
             json.dump(matrix, fp)
+        finish_message(s)
+
+
+class Normalization:
+    def __init__(self, dataframe, matrix_path, norm_matrix_output_path):
+        self.dataframe = dataframe
+        with open(matrix_path, 'r') as f:
+            matrix = json.load(f)
+            self.matrix = matrix['values']
+            self.max_dist = matrix['max_dist']
+        self.output_path = norm_matrix_output_path
+
+    @staticmethod
+    def normalize(length_1, length_2, dist):
+        k = len(length_1)
+        result = []
+        for i in range(k):
+            if length_1[i] is None or length_2[i] is None or dist[i] is None:
+                result.append(None)
+            else:
+                s = length_1[i] + length_2[i]
+                result.append((s - dist[i]) / s)
+        return result
+
+    def _pool_function(self, keys):
+        print("Process: ", os.getpid())
+        count = 0
+        result = defaultdict(list)
+        for i in keys:
+            length_i = get_lengths(self.dataframe.loc[int(i)])
+            for j, dist in self.matrix[i]:
+                length_j = get_lengths(self.dataframe.loc[j])
+                norm_dist = Normalization.normalize(length_i, length_j, dist)
+                result[i].append([j, norm_dist])
+            count += 1
+            if count % 100 == 0:
+                print(os.getpid(), " : ", count)
+        return result
+
+    def create_norm_matrix(self):
+        s = start_message('Normalization')
+
+        keys = list(self.matrix.keys())
+        print('Keys: ', len(keys))
+        rearranged_keys = rearrange_list(keys, os.cpu_count())
+
+        with Pool() as p:
+            results = p.map(self._pool_function, rearranged_keys)
+
+        norm_matrix = merge_dicts(results)
+
+        with open(self.output_path, 'w') as fp:
+            json.dump(norm_matrix, fp)
+
         finish_message(s)
