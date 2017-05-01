@@ -11,6 +11,9 @@ from conf import BASE_DIR
 from modules.dataset_processing import EditDistanceMatrix
 from duplicate_searching import Predictor
 
+from modules.miac import MIAC_SMALL_DATA
+from modules.miac import Indexation, MatrixCalculation
+
 FOLDER_PATH = os.path.join(BASE_DIR, 'data', 'miac', 'small')
 DATAFRAME_PATH = os.path.join(FOLDER_PATH, 'data.csv')
 INDEX_PATH = os.path.join(FOLDER_PATH, 'index.json')
@@ -19,60 +22,6 @@ MATRIX_PATH_JSON = os.path.join(FOLDER_PATH, 'matrix.json')
 
 STR_FIELDS = ['first_name', 'last_name', 'father_name']
 DATE_FIELDS = ['birthday']
-
-
-def create_index_dict(df, field, index_path):
-    values = np.unique(df[field].values)
-    r = len(values) % os.cpu_count()
-    list_values = np.reshape(values[:-r], (-1, os.cpu_count()))
-    list_values = list_values.transpose()
-    list_values = list_values.tolist()
-    list_values[0] += values[-r:].tolist()
-    print('-' * 80)
-    s = datetime.datetime.now()
-    print('Indexing')
-    print('Start: ', s)
-
-    def run(values):
-        i = 0
-        index_dict = defaultdict(list)
-        for value in values:
-            df_sub = df[df[field].str.contains(value, na=False)]
-            index_dict[value] = list(map(lambda x: int(x), df_sub.index.tolist()))
-            i += 1
-            if i % 500 == 0:
-                print(os.getpid(), ' : ', i, ' : ', datetime.datetime.now())
-        return index_dict
-
-    with Pool() as p:
-        results = p.map(run, list_values)
-
-    index_dict = defaultdict(list)
-    for res in results:
-        index_dict.update(res)
-
-    with open(index_path, 'w') as fp:
-        json.dump(index_dict, fp, ensure_ascii=False)
-    e = datetime.datetime.now()
-    print('Finish: ', e)
-    print('Delta: ', e - s)
-    print('-' * 80)
-
-
-def matrix_calculation(df, index_path, matrix_path):
-    s = datetime.datetime.now()
-    print('-' * 80)
-    print('Matrix')
-    print('Start: ', s)
-    matrix_generator = EditDistanceMatrix(df, str_column_names=STR_FIELDS, index_path=index_path,
-                                          date_column_names=DATE_FIELDS, normalize=None)
-    matrix = matrix_generator.get()
-    with open(matrix_path, 'w') as fp:
-        json.dump(matrix, fp)
-    e = datetime.datetime.now()
-    print('Finish: ', e)
-    print('Delta: ', e - s)
-    print('-' * 80)
 
 
 def get_length(row):
@@ -175,6 +124,7 @@ def search_duplicates(norm_matrix_path, duplicates_path):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv(DATAFRAME_PATH, index_col='id')
-    norm_matrix_path = os.path.join(FOLDER_PATH, 'norm-sum-matrix.json')
-    duplicates_path = os.path.join(FOLDER_PATH, 'duplicates-sample.json')
+    df = pd.read_csv(MIAC_SMALL_DATA['sample']['data'], index_col='id')
+    matrix_calculator = MatrixCalculation(df, index_path=MIAC_SMALL_DATA['sample']['index'],
+                                          matrix_output_path=MIAC_SMALL_DATA['sample']['matrix'])
+    matrix_calculator.create_matrix()
