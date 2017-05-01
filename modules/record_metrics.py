@@ -1,5 +1,7 @@
 def levenshtein_edit_distance(a, b, normal=None):
     """Calculates the Levenshtein distance between a and b."""
+    if not isinstance(a, str) or not isinstance(b, str):
+        return None
     n, m = len(a), len(b)
     if n > m:
         a, b = b, a

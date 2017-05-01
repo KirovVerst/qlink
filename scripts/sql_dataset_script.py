@@ -22,7 +22,7 @@ if __name__ == "__main__":
                                                         name))
     data = Data(dataset_type=dataset_type, kwargs=DATABASE['default'])
 
-    matrix = EditDistanceMatrix(data.df, column_names=['first_name', 'last_name', 'father'], concat=True)
+    matrix = EditDistanceMatrix(data.df, str_column_names=['first_name', 'last_name', 'father'], concat=True)
     matrix = matrix.get()
 
     predicted_duplicates = predict_duplicates(matrix['values'], level)

@@ -15,7 +15,11 @@ def remove_double_letters(s):
 def get_strings(row, column_names, concat):
     s = []
     for column_name in column_names:
-        s.append(remove_double_letters(row[column_name]))
+        v = row[column_name]
+        if isinstance(v, str):
+            s.append(remove_double_letters(row[column_name]))
+        else:
+            s.append(None)
     if concat:
         s = ["".join(s)]
     return s

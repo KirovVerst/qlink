@@ -32,7 +32,7 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, column_names=COLUMN_NAMES,
+    matrix = EditDistanceMatrix(data.df, str_column_names=COLUMN_NAMES,
                                 concat=False, normalize="total", index_fields=INDEX_FIELDS)
     matrix_values = matrix.get(NJOBS)
 

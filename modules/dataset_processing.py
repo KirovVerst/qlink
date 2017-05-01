@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import json
 
 from collections import defaultdict
 from pathos.multiprocessing import Pool
@@ -9,30 +10,28 @@ from modules.record_processing import get_strings, remove_double_letters
 
 
 class EditDistanceMatrix(object):
-    def __init__(self, df, column_names,
+    def __init__(self, df, str_column_names, date_column_names, index_path,
                  edit_distance_func=levenshtein_edit_distance,
-                 normalize="sum", index_fields=None,
-                 concat=False):
+                 normalize="sum", ):
         """
         
         :param df: 
-        :param column_names: 
+        :param str_column_names: 
         :param edit_distance_func: 
         :param normalize: str. ``max``, ``sum``, ``total``, None
-        :param concat: 
         """
         self.size = len(df)
         self.df = df
-        self.column_names = column_names
-        self.k = 1 if concat else len(column_names)
+        self.str_column_names = str_column_names
+        self.date_column_names = date_column_names
         self.x = defaultdict(list)
         self.func = edit_distance_func
         self.normalize = normalize
         self.max_dist = []
+        self.k = len(self.str_column_names + self.date_column_names)
         # index dictionary
-        self.index_dict = None
-        if index_fields is not None:
-            self._init_index(index_fields)
+        with open(index_path, 'r') as fp:
+            self.index_dict = json.load(fp)
 
     def process_part(self, row_indexes=None):
         """
@@ -43,32 +42,31 @@ class EditDistanceMatrix(object):
 
         max_dist = [-1] * self.k
         if row_indexes is None:
-            row_indexes = range(self.size)
-
-        if self.index_dict is not None:
-            field_names = self.index_dict.keys()
-
+            row_indexes = self.df.index.values.tolist()
+        count = 0
         for i in row_indexes:
-            available_row_ids = list(range(i + 1, len(self.df)))
-
-            if self.index_dict is not None:
-                available_row_ids = list()
-                for field_name in field_names:
-                    field_value = self.df.iloc[i][field_name]
-                    available_row_ids += self.index_dict[field_name][field_value]
-
-                available_row_ids = list(set(available_row_ids))
-
-            s1 = get_strings(self.df.iloc[i], self.column_names, concat=self.k == 1)
+            available_row_ids = list(set(self.index_dict[self.df.loc[i]['last_name']]))
+            try:
+                available_row_ids.remove(i)
+            except Exception:
+                pass
+            s1 = get_strings(self.df.loc[i], self.str_column_names, concat=self.k == 1)
+            for field in self.date_column_names:
+                s1.append(self.df.loc[i][field])
 
             for j in available_row_ids:
 
-                s2 = get_strings(self.df.iloc[j], self.column_names, self.k == 1)
+                s2 = get_strings(self.df.loc[j], self.str_column_names, concat=self.k == 1)
+                for field in self.date_column_names:
+                    s2.append(self.df.loc[j][field])
 
                 distance = []
 
                 for i1 in range(self.k):
                     current_dist = self.func(s1[i1], s2[i1])
+                    if current_dist is None:
+                        distance.append(current_dist)
+                        continue
                     if self.normalize == "max":
                         max_d = max(len(s1[i1]), len(s2[i1]))
                         distance.append((max_d - current_dist) / max_d)
@@ -83,15 +81,23 @@ class EditDistanceMatrix(object):
                     self.x[i].append((j, distance.copy()))
                 if (i, distance) not in self.x[j]:
                     self.x[j].append((i, distance.copy()))
-
+            count += 1
+            if count % 500 == 0:
+                print(os.getpid(), ' : ', count)
         return max_dist, self.x
 
     def get_ids(self, njobs):
         r = self.size % njobs
-        matrix = np.reshape(np.arange(0, self.size - r), (-1, njobs))
+        indexes = self.df.index.values.tolist()
+        if r > 0:
+            matrix = np.reshape(indexes[:-r], (-1, njobs))
+        else:
+            matrix = np.reshape(indexes, (-1, njobs))
         matrix = matrix.transpose().tolist()
-        for i in range(self.size - r, self.size):
-            matrix[i % r].append(i)
+        if r > 0:
+            for i in indexes[-r:]:
+                matrix[0].append(i)
+
         return matrix
 
     def get(self, njobs=-1):
@@ -139,7 +145,7 @@ class EditDistanceMatrix(object):
                             self.x[row_id][i][1][j] = (self.max_dist[j] - self.x[row_id][i][1][j]) / self.max_dist[j]
         return {
             'values': self.x,
-            'max_dist': self.max_dist
+            'max_dist': list(map(int, self.max_dist))
         }
 
     def _init_index(self, index_fields):

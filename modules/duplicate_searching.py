@@ -23,10 +23,12 @@ class Predictor:
 
     @staticmethod
     def _list2float_norm(values):
+        values = list(filter(lambda x: x is not None, values))
         return np.linalg.norm(values)
 
     @staticmethod
     def _list2float_sum(values):
+        values = list(filter(lambda x: x is not None, values))
         return sum(values)
 
     @staticmethod
@@ -37,8 +39,15 @@ class Predictor:
         :param levels: [float]. List of levels
         :return: bool
         """
-        length = len(values)
-        return sum(np.array(values) > levels) == length
+        total_count = 0
+        count = 0
+        for i, value in enumerate(values):
+            if value is None:
+                continue
+            total_count += 1
+            if value >= levels[i]:
+                count += 1
+        return total_count == count
 
     @staticmethod
     def _comparator_or(values, levels):
@@ -49,7 +58,12 @@ class Predictor:
         :return: bool
         :return: 
         """
-        return sum(values > levels) >= 1
+        for i, value in enumerate(values):
+            if value is None:
+                continue
+            if value >= levels[i]:
+                return True
+        return False
 
     def _predict_for_one_level(self, state_index):
         """
@@ -64,10 +78,18 @@ class Predictor:
 
         items = []
         extra_data = dict()
+        count = 0
+        print('Keys: ', len(self.data))
         for i in self.data:
+            count += 1
             if i not in self.state[state_index]['processed']:
+                if str(i) == '536':
+                    print(i)
                 duplicates = [i] + self.recursive_search(i, state_index, extra_data)
-                items.append(duplicates)
+                if len(duplicates) >= 2:
+                    items.append(duplicates)
+            if count % 1000 == 0:
+                print('Processed: ', count)
         return dict(level=self.state[state_index]['level'], items=items, extra_data=extra_data)
 
     def recursive_search(self, row_id, state_index, extra_data):
@@ -79,19 +101,21 @@ class Predictor:
         """
         self.state[state_index]['processed'].add(row_id)
         levels = self.state[state_index]['level']
+        try:
+            records = list(filter(lambda x: self.comparator(values=x[1], levels=levels), self.data[str(row_id)]))
+            records = list(filter(lambda x: x[0] not in self.state[state_index]['processed'], records))
+            records = list(map(lambda x: (x[0], x[1], self.list2float(x[1])), records))
 
-        records = list(filter(lambda x: self.comparator(values=x[1], levels=levels), self.data[row_id]))
-        records = list(filter(lambda x: x[0] not in self.state[state_index]['processed'], records))
-        records = list(map(lambda x: (x[0], x[1], self.list2float(x[1])), records))
-
-        if len(records) > 0:
-            max_record = max(records, key=lambda x: x[2])
-            if self._save_extra_data:
-                extra_data_item = dict(eval_levels=max_record[1], according=row_id)
-                extra_data[max_record[0]] = extra_data_item
-            return [max_record[0]] + self.recursive_search(max_record[0], state_index, extra_data)
-        else:
-            return []
+            if len(records) > 0:
+                max_record = max(records, key=lambda x: x[2])
+                if self._save_extra_data:
+                    extra_data_item = dict(eval_levels=max_record[1], according=row_id)
+                    extra_data[max_record[0]] = extra_data_item
+                return [max_record[0]] + self.recursive_search(max_record[0], state_index, extra_data)
+            else:
+                return []
+        except:
+            print(row_id)
 
     def predict_duplicates(self, njobs=-1):
         """
