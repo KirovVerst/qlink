@@ -4,7 +4,7 @@ from pathos.multiprocessing import Pool
 
 
 class Predictor:
-    def __init__(self, data, levels, list2float, comparator, save_extra_data):
+    def __init__(self, data, levels, list2float, comparator, save_extra_data, mode):
         """
         Class that provides a duplicate prediction in the dataset
         :param data: defaultdict. {k = [(j, [float, float, ...])]}.
@@ -12,12 +12,14 @@ class Predictor:
         :param list2float: str. Name of a function that converts list to float: "sum", "norm".
         :param comparator: str. Name of a comparision function: "or", "and".
         :param save_extra_data: bool
+        :param mode: ```max```, ```all```
         """
         self.data = data
         self.state = list(map(lambda level: dict(level=level, processed=set()), levels))
         self.list2float = self._list2float_norm if list2float == "norm" else self._list2float_sum
         self.comparator = self._comparator_and if comparator == "and" else self._comparator_or
         self._save_extra_data = save_extra_data
+        self.mode = mode
         if self._save_extra_data:
             self.extra_data = [dict()] * len(levels)
 
@@ -83,12 +85,29 @@ class Predictor:
         for i in self.data:
             count += 1
             if i not in self.state[state_index]['processed']:
-                duplicates = [i] + self.recursive_search(i, state_index, extra_data)
+
+                if self.mode == 'all':
+                    duplicates = self.all_acceptable_search(i, state_index, extra_data)
+                elif self.mode == 'max':
+                    duplicates = [i] + self.recursive_search(i, state_index, extra_data)
+
                 if len(duplicates) >= 2:
                     items.append(duplicates)
+
             if count % 1000 == 0:
                 print('Processed: ', count)
+
         return dict(level=self.state[state_index]['level'], items=items, extra_data=extra_data)
+
+    def all_acceptable_search(self, row_id, state_index, extra_data):
+        levels = self.state[state_index]['level']
+        records = list(filter(lambda x: self.comparator(values=x[1], levels=levels), self.data[str(row_id)]))
+        records = list(filter(lambda x: x[0] not in self.state[state_index]['processed'], records))
+        keys = set(map(lambda x: str(x[0]), records))
+        if len(keys) > 0:
+            keys.add(str(row_id))
+            self.state[state_index]['processed'] = self.state[state_index]['processed'].union(keys)
+        return keys
 
     def recursive_search(self, row_id, state_index, extra_data):
         """

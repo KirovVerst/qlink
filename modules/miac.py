@@ -200,17 +200,18 @@ class Normalization:
 
 
 class DuplicateSearching:
-    def __init__(self, dataframe, norm_matrix_path, duplicates_output_path):
+    def __init__(self, dataframe, norm_matrix_path, duplicates_output_path, mode):
         self.dataframe = dataframe
         with open(norm_matrix_path, 'r') as f:
             self.matrix = json.load(f)
         self.output_path = duplicates_output_path
+        self.mode = mode
 
     def search_duplicates(self, level):
         s = start_message('Duplicate searching')
 
         predictor = Predictor(data=self.matrix, levels=[[level] * len(FIELDS)], list2float='norm', comparator='and',
-                              save_extra_data=False)
+                              save_extra_data=False, mode=self.mode)
         duplicates_list = predictor.predict_duplicates(njobs=1)
         extended_duplicates_list = []
         for duplicates in duplicates_list:
