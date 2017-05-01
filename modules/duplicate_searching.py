@@ -102,7 +102,7 @@ class Predictor:
     def all_acceptable_search(self, row_id, state_index, extra_data):
         levels = self.state[state_index]['level']
         records = list(filter(lambda x: self.comparator(values=x[1], levels=levels), self.data[str(row_id)]))
-        records = list(filter(lambda x: x[0] not in self.state[state_index]['processed'], records))
+        records = list(filter(lambda x: str(x[0]) not in self.state[state_index]['processed'], records))
         keys = set(map(lambda x: str(x[0]), records))
         if len(keys) > 0:
             keys.add(str(row_id))
@@ -131,8 +131,9 @@ class Predictor:
                 return [max_record[0]] + self.recursive_search(max_record[0], state_index, extra_data)
             else:
                 return []
-        except:
-            print(row_id)
+        except Exception as e:
+            print(e.args)
+            return []
 
     def predict_duplicates(self, njobs=-1):
         """

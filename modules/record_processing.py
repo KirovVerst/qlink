@@ -17,7 +17,7 @@ def get_strings(row, column_names, concat):
     for column_name in column_names:
         v = row[column_name]
         if isinstance(v, str):
-            s.append(remove_double_letters(row[column_name]))
+            s.append(remove_double_letters(v))
         else:
             s.append(None)
     if concat:

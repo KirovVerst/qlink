@@ -11,7 +11,6 @@ def run(is_sample, size=None):
         df = df[:size]
         df.to_csv(MIAC_SMALL_DATA['sample']['data'], index=True)
         folder = MIAC_SMALL_DATA['sample']
-
     """
     indexator = Indexation(df, 'last_name', folder['index'])
     indexator.create_index_dict()
@@ -20,15 +19,15 @@ def run(is_sample, size=None):
     matrix_calculator = MatrixCalculation(df, folder['index'], folder['matrix'])
     matrix_calculator.create_matrix(norm_matrix_path=folder['norm-matrix'])
 
-    searcher = DuplicateSearching(df, folder['norm-matrix'], folder['duplicates'], mode='max')
-    searcher.search_duplicates(0.9)
+    searcher = DuplicateSearching(df, folder['norm-matrix'], folder['duplicates'], mode='all')
+    searcher.search_duplicates([0.87, 0.87, 0.87, 0.9])
 
 
 def search(is_sample):
     folder = MIAC_SMALL_DATA['sample'] if is_sample else MIAC_SMALL_DATA['full']
     df = pd.read_csv(folder['data'], index_col='id')
     searcher = DuplicateSearching(df, folder['norm-matrix'], folder['duplicates'], mode='all')
-    searcher.search_duplicates(0.87)
+    searcher.search_duplicates([0.83, 0.83, 0.85, 0.92])
 
 
 if __name__ == '__main__':

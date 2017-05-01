@@ -208,9 +208,11 @@ class DuplicateSearching:
         self.mode = mode
 
     def search_duplicates(self, level):
+        if len(level) != len(FIELDS):
+            print('Level threshold is not correct. length = ', len(level))
         s = start_message('Duplicate searching')
 
-        predictor = Predictor(data=self.matrix, levels=[[level] * len(FIELDS)], list2float='norm', comparator='and',
+        predictor = Predictor(data=self.matrix, levels=[level], list2float='norm', comparator='and',
                               save_extra_data=False, mode=self.mode)
         duplicates_list = predictor.predict_duplicates(njobs=1)
         extended_duplicates_list = []

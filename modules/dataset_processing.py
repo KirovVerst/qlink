@@ -78,9 +78,11 @@ class EditDistanceMatrix(object):
                         distance.append(current_dist)
 
                     max_dist[i1] = max(max_dist[i1], current_dist)
-                if (j, distance) not in self.x[i]:
+
+                if None not in s1 and (j, distance) not in self.x[i]:
                     self.x[i].append((j, distance.copy()))
-                if (i, distance) not in self.x[j]:
+
+                if None not in s2 and (i, distance) not in self.x[j]:
                     self.x[j].append((i, distance.copy()))
             count += 1
             if count % 500 == 0:
@@ -137,13 +139,6 @@ class EditDistanceMatrix(object):
 
             self.max_dist = list(map(lambda i: max(distances[i]), range(self.k)))
 
-        positions = list(filter(lambda i: self.max_dist[i] != 0, range(self.k)))
-        if len(positions) != 0:
-            if self.normalize == "total":
-                for row_id in self.x.keys():
-                    for i in range(len(self.x[row_id])):
-                        for j in positions:
-                            self.x[row_id][i][1][j] = (self.max_dist[j] - self.x[row_id][i][1][j]) / self.max_dist[j]
         return {
             'values': self.x,
             'max_dist': list(map(int, self.max_dist))
