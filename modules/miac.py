@@ -10,13 +10,19 @@ from modules.duplicate_searching import Predictor
 
 MIAC_SMALL_FOLDER = os.path.join(BASE_DIR, 'data', 'miac', 'small')
 MIAC_SMALL_DATA = {
-    'data': os.path.join(MIAC_SMALL_FOLDER, 'data.csv'),
     'sample': {
         'data': os.path.join(MIAC_SMALL_FOLDER, 'data-sample.csv'),
         'matrix': os.path.join(MIAC_SMALL_FOLDER, 'matrix-sample.json'),
         'index': os.path.join(MIAC_SMALL_FOLDER, 'index-sample.json'),
         'norm-matrix': os.path.join(MIAC_SMALL_FOLDER, 'norm-matrix-sample.json'),
         'duplicates': os.path.join(MIAC_SMALL_FOLDER, 'duplicates-sample.json')
+    },
+    'full': {
+        'data': os.path.join(MIAC_SMALL_FOLDER, 'data.csv'),
+        'matrix': os.path.join(MIAC_SMALL_FOLDER, 'matrix.json'),
+        'index': os.path.join(MIAC_SMALL_FOLDER, 'index.json'),
+        'norm-matrix': os.path.join(MIAC_SMALL_FOLDER, 'norm-matrix.json'),
+        'duplicates': os.path.join(MIAC_SMALL_FOLDER, 'duplicates.json')
     }
 }
 
@@ -123,13 +129,19 @@ class MatrixCalculation:
         self.index_path = index_path
         self.output_path = matrix_output_path
 
-    def create_matrix(self):
+    def create_matrix(self, norm_matrix_path=None):
         s = start_message('Matrix')
         matrix_generator = EditDistanceMatrix(self.dataframe, str_column_names=STR_FIELDS, index_path=self.index_path,
-                                              date_column_names=DATE_FIELDS, normalize=None)
+                                              date_column_names=DATE_FIELDS, normalize='sum')
         matrix = matrix_generator.get()
         with open(self.output_path, 'w') as fp:
             json.dump(matrix, fp)
+
+        if norm_matrix_path is not None:
+            matrix = matrix['values']
+            with open(norm_matrix_path, 'w') as fp:
+                json.dump(matrix, fp)
+
         finish_message(s)
 
 

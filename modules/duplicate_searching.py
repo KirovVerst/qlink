@@ -83,8 +83,6 @@ class Predictor:
         for i in self.data:
             count += 1
             if i not in self.state[state_index]['processed']:
-                if str(i) == '536':
-                    print(i)
                 duplicates = [i] + self.recursive_search(i, state_index, extra_data)
                 if len(duplicates) >= 2:
                     items.append(duplicates)

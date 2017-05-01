@@ -44,6 +44,7 @@ class EditDistanceMatrix(object):
         if row_indexes is None:
             row_indexes = self.df.index.values.tolist()
         count = 0
+        total_count = len(row_indexes)
         for i in row_indexes:
             available_row_ids = list(set(self.index_dict[self.df.loc[i]['last_name']]))
             try:
@@ -83,7 +84,7 @@ class EditDistanceMatrix(object):
                     self.x[j].append((i, distance.copy()))
             count += 1
             if count % 500 == 0:
-                print(os.getpid(), ' : ', count)
+                print(os.getpid(), ' : ', round(count / total_count, 3))
         return max_dist, self.x
 
     def get_ids(self, njobs):
