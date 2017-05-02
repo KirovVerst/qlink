@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from modules.miac import MIAC_SMALL_DATA
 from modules.miac import Indexation, MatrixCalculation, Normalization, DuplicateSearching
 
@@ -31,4 +32,4 @@ def search(is_sample):
 
 
 if __name__ == '__main__':
-    search(is_sample=False)
+    pass

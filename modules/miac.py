@@ -1,14 +1,16 @@
 import pandas as pd, numpy as np
 import os, datetime, json
+import itertools
 
 from pathos.multiprocessing import Pool
-
 from collections import defaultdict
 from conf import BASE_DIR
 from modules.dataset_processing import EditDistanceMatrix
 from modules.duplicate_searching import Predictor
 
 MIAC_SMALL_FOLDER = os.path.join(BASE_DIR, 'data', 'miac', 'small')
+MIAC_BIG_FOLDER = os.path.join(BASE_DIR, 'data', 'miac', 'big')
+
 MIAC_SMALL_DATA = {
     'sample': {
         'data': os.path.join(MIAC_SMALL_FOLDER, 'data-sample.csv'),
@@ -23,6 +25,23 @@ MIAC_SMALL_DATA = {
         'index': os.path.join(MIAC_SMALL_FOLDER, 'index.json'),
         'norm-matrix': os.path.join(MIAC_SMALL_FOLDER, 'norm-matrix.json'),
         'duplicates': os.path.join(MIAC_SMALL_FOLDER, 'duplicates.json')
+    }
+}
+
+MIAC_BIG_DATA = {
+    'sample': {
+        'data': os.path.join(MIAC_BIG_FOLDER, 'data-sample.csv'),
+        'matrix': os.path.join(MIAC_BIG_FOLDER, 'matrix-sample.json'),
+        'index': os.path.join(MIAC_BIG_FOLDER, 'index-sample.json'),
+        'norm-matrix': os.path.join(MIAC_BIG_FOLDER, 'norm-matrix-sample.json'),
+        'duplicates': os.path.join(MIAC_BIG_FOLDER, 'duplicates-sample.json')
+    },
+    'full': {
+        'data': os.path.join(MIAC_BIG_FOLDER, 'data.csv'),
+        'matrix': os.path.join(MIAC_BIG_FOLDER, 'matrix.json'),
+        'index': os.path.join(MIAC_BIG_FOLDER, 'index.json'),
+        'norm-matrix': os.path.join(MIAC_BIG_FOLDER, 'norm-matrix.json'),
+        'duplicates': os.path.join(MIAC_BIG_FOLDER, 'duplicates.json')
     }
 }
 
@@ -97,7 +116,7 @@ class Indexation:
         index_dict = defaultdict(list)
         for value in values:
             value_length = len(value)
-            df_sub = self.dataframe[self.dataframe[self.field].str.len() <= 3 * value_length]
+            df_sub = self.dataframe[self.dataframe[self.field].str.len() <= 4 * value_length]
             df_sub = df_sub[df_sub[self.field].str.contains(value, na=False)]
             index_dict[value] = list(map(lambda x: int(x), df_sub.index.tolist()))
             i += 1
@@ -106,7 +125,9 @@ class Indexation:
         return index_dict
 
     def create_index_dict(self):
-        unique_values = np.unique(self.dataframe[self.field].values)
+        values = self.dataframe[self.field].values
+        values = list(map(lambda value: value.split('-'), values))
+        unique_values = np.unique(list(itertools.chain(*values)))
         values = rearrange_list(unique_values, os.cpu_count())
 
         s = start_message('Indexation')
