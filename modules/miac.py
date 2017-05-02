@@ -145,16 +145,19 @@ class Indexation:
 
 
 class MatrixCalculation:
-    def __init__(self, dataframe, index_path, matrix_output_path):
+    def __init__(self, dataframe, index_path, matrix_output_path, index_field):
         self.dataframe = dataframe
         self.index_path = index_path
         self.output_path = matrix_output_path
+        self.index_field = index_field
 
-    def create_matrix(self, norm_matrix_path=None):
+    def create_matrix(self, norm_matrix_path=None, njobs=-1):
         s = start_message('Matrix')
-        matrix_generator = EditDistanceMatrix(self.dataframe, str_column_names=STR_FIELDS, index_path=self.index_path,
-                                              date_column_names=DATE_FIELDS, normalize='sum')
-        matrix = matrix_generator.get()
+        matrix_generator = EditDistanceMatrix(df=self.dataframe,
+                                              str_column_names=STR_FIELDS, date_column_names=DATE_FIELDS,
+                                              index_path=self.index_path, index_field=self.index_field,
+                                              normalize='sum')
+        matrix = matrix_generator.get(njobs)
         with open(self.output_path, 'w') as fp:
             json.dump(matrix, fp)
 

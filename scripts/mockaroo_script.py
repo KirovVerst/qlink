@@ -71,7 +71,7 @@ def func(document_index):
         'time_delta': str(time_delta),
         'max_dist': str(matrix_values['max_dist']),
         'normalize': str(matrix.normalize),
-        "concat": str(matrix.k == 1)
+        "concat": str(matrix.fields == 1)
     }
     pprint.pprint(current_meta_data['results'])
     print("Dataset {0} is ready: \t\t{1}".format(document_index + 1, datetime.datetime.now()))

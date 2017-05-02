@@ -10,7 +10,7 @@ from modules.record_processing import get_strings, remove_double_letters
 
 
 class EditDistanceMatrix(object):
-    def __init__(self, df, str_column_names, date_column_names, index_path,
+    def __init__(self, df, str_column_names, date_column_names, index_path, index_field,
                  edit_distance_func=levenshtein_edit_distance,
                  normalize="sum", ):
         """
@@ -28,7 +28,8 @@ class EditDistanceMatrix(object):
         self.func = edit_distance_func
         self.normalize = normalize
         self.max_dist = []
-        self.k = len(self.str_column_names + self.date_column_names)
+        self.fields = self.str_column_names + self.date_column_names
+        self.index_field = index_field
         # index dictionary
         with open(index_path, 'r') as fp:
             self.index_dict = json.load(fp)
@@ -40,50 +41,73 @@ class EditDistanceMatrix(object):
         :return: ([int, int, ...], np.array)
         """
 
-        max_dist = [-1] * self.k
+        max_dist = [-1] * len(self.fields)
         if row_indexes is None:
             row_indexes = self.df.index.values.tolist()
         count = 0
         total_count = len(row_indexes)
+
         for i in row_indexes:
-            available_row_ids = list(set(self.index_dict[self.df.loc[i]['last_name']]))
-            try:
-                available_row_ids.remove(i)
-            except Exception:
-                pass
-            s1 = get_strings(self.df.loc[i], self.str_column_names, concat=self.k == 1)
+
+            if self.df.loc[i][self.index_field] is not np.nan:
+                index_field_values = self.df.loc[i][self.index_field].split('-') + ['nan']
+            else:
+                continue
+
+            s1 = get_strings(self.df.loc[i], self.str_column_names)
+
             for field in self.date_column_names:
-                s1.append(self.df.loc[i][field])
+                s1.append([self.df.loc[i][field]])
 
-            for j in available_row_ids:
+            for index_field_value in index_field_values:
+                available_keys = list(set(self.index_dict[index_field_value]))
 
-                s2 = get_strings(self.df.loc[j], self.str_column_names, concat=self.k == 1)
-                for field in self.date_column_names:
-                    s2.append(self.df.loc[j][field])
+                try:
+                    available_keys.remove(i)
+                except Exception:
+                    pass
 
-                distance = []
+                for j in available_keys:
 
-                for i1 in range(self.k):
-                    current_dist = self.func(s1[i1], s2[i1])
-                    if current_dist is None:
-                        distance.append(current_dist)
-                        continue
-                    if self.normalize == "max":
-                        max_d = max(len(s1[i1]), len(s2[i1]))
-                        distance.append((max_d - current_dist) / max_d)
-                    elif self.normalize == "sum":
-                        max_d = len(s1[i1]) + len(s2[i1])
-                        distance.append((max_d - current_dist) / max_d)
-                    else:
-                        distance.append(current_dist)
+                    s2 = get_strings(self.df.loc[j], self.str_column_names)
+                    for field in self.date_column_names:
+                        s2.append([self.df.loc[j][field]])
 
-                    max_dist[i1] = max(max_dist[i1], current_dist)
+                    distances = []
 
-                if None not in s1 and (j, distance) not in self.x[i]:
-                    self.x[i].append((j, distance.copy()))
+                    for k, field_name in enumerate(self.fields):
+                        if field_name == self.index_field:
+                            list_values_1 = [index_field_value]
+                        else:
+                            list_values_1 = list(filter(lambda x: x is not None, s1[k]))
+                        list_values_2 = list(filter(lambda x: x is not None, s2[k]))
+                        field_distance = []
+                        for v1 in list_values_1:
+                            for v2 in list_values_2:
+                                current_distance = self.func(v1, v2)
+                                field_distance.append([current_distance, len(v1), len(v2)])
 
-                if None not in s2 and (i, distance) not in self.x[j]:
-                    self.x[j].append((i, distance.copy()))
+                        if len(field_distance) == 0:
+                            distances.append(None)
+                            continue
+                        else:
+                            field_distance = min(field_distance, key=lambda k: k[0])
+                        if self.normalize == "max":
+                            max_d = max([field_distance[1], field_distance[2]])
+                            distances.append((max_d - field_distance[0]) / max_d)
+                        elif self.normalize == "sum":
+                            max_d = field_distance[1] + field_distance[2]
+                            distances.append((max_d - field_distance[0]) / max_d)
+                        else:
+                            distances.append(field_distance[0])
+
+                        max_dist[k] = max(max_dist[k], field_distance[0])
+
+                    if [None] not in s1 and (j, distances) not in self.x[i]:
+                        self.x[i].append((j, distances.copy()))
+
+                    if [None] not in s2 and (i, distances) not in self.x[j]:
+                        self.x[j].append((i, distances.copy()))
             count += 1
             if count % 500 == 0:
                 print(os.getpid(), ' : ', round(count / total_count, 3))
@@ -137,7 +161,7 @@ class EditDistanceMatrix(object):
                 for k, v in matrix.items():
                     self.x[k].extend(v)
 
-            self.max_dist = list(map(lambda i: max(distances[i]), range(self.k)))
+            self.max_dist = list(map(lambda i: max(distances[i]), range(len(self.fields))))
 
         return {
             'values': self.x,
