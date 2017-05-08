@@ -10,22 +10,21 @@ from modules.record_processing import get_strings, remove_double_letters
 
 
 class EditDistanceMatrix(object):
-    def __init__(self, df, str_column_names, date_column_names, index_path, index_field,
-                 edit_distance_func=levenshtein_edit_distance,
-                 normalize="sum", ):
+    def __init__(self, df, str_column_names, date_column_names, index_path, index_field, normalize,
+                 edit_distance_function=levenshtein_edit_distance):
         """
         
         :param df: 
         :param str_column_names: 
-        :param edit_distance_func: 
-        :param normalize: str. ``max``, ``sum``, ``total``, None
+        :param edit_distance_function: 
+        :param normalize: bool
         """
         self.size = len(df)
         self.df = df
         self.str_column_names = str_column_names
         self.date_column_names = date_column_names
         self.x = defaultdict(list)
-        self.func = edit_distance_func
+        self.func = edit_distance_function
         self.normalize = normalize
         self.max_dist = []
         self.fields = self.str_column_names + self.date_column_names
@@ -41,7 +40,7 @@ class EditDistanceMatrix(object):
         :return: ([int, int, ...], np.array)
         """
 
-        max_dist = [-1] * len(self.fields)
+        max_distances = [-1] * len(self.fields)
         if row_indexes is None:
             row_indexes = self.df.index.values.tolist()
         count = 0
@@ -91,17 +90,14 @@ class EditDistanceMatrix(object):
                             distances.append(None)
                             continue
                         else:
-                            field_distance = min(field_distance, key=lambda k: k[0])
-                        if self.normalize == "max":
-                            max_d = max([field_distance[1], field_distance[2]])
-                            distances.append((max_d - field_distance[0]) / max_d)
-                        elif self.normalize == "sum":
-                            max_d = field_distance[1] + field_distance[2]
-                            distances.append((max_d - field_distance[0]) / max_d)
+                            field_distance = min(field_distance, key=lambda dist: dist[0])
+                        if self.normalize:
+                            max_distance = max([field_distance[1], field_distance[2]])
+                            distances.append((max_distance - field_distance[0]) / max_distance)
                         else:
                             distances.append(field_distance[0])
 
-                        max_dist[k] = max(max_dist[k], field_distance[0])
+                        max_distances[k] = max(max_distances[k], field_distance[0])
 
                     if [None] not in s1 and (j, distances) not in self.x[i]:
                         self.x[i].append((j, distances.copy()))
@@ -111,7 +107,7 @@ class EditDistanceMatrix(object):
             count += 1
             if count % 500 == 0:
                 print(os.getpid(), ' : ', round(count / total_count, 3))
-        return max_dist, self.x
+        return max_distances, self.x
 
     def get_ids(self, njobs):
         r = self.size % njobs

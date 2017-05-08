@@ -17,7 +17,7 @@ def run(is_sample, size=None):
     indexator.create_index_dict()
     """
 
-    matrix_calculator = MatrixCalculation(df, folder['index'], folder['matrix'])
+    matrix_calculator = MatrixCalculation(df, folder['index'], folder['matrix'], index_field='last_name')
     matrix_calculator.create_matrix(norm_matrix_path=folder['norm-matrix'])
 
     searcher = DuplicateSearching(df, folder['norm-matrix'], folder['duplicates'], mode='all')
@@ -32,4 +32,11 @@ def search(is_sample):
 
 
 if __name__ == '__main__':
-    pass
+    with open(MIAC_SMALL_DATA['full']['duplicates']) as f:
+        duplicates = json.load(f)
+
+    duplicates = duplicates[0]['items']
+    count = 0
+    for cluster in duplicates:
+        count += len(cluster.items())
+    print(len(pd.read_csv(MIAC_SMALL_DATA['full']['data'])) - count + len(duplicates))

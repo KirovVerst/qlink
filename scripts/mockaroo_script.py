@@ -32,8 +32,8 @@ def func(document_index):
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
 
-    matrix = EditDistanceMatrix(data.df, str_column_names=COLUMN_NAMES,
-                                concat=False, normalize="total", index_fields=INDEX_FIELDS)
+    matrix = EditDistanceMatrix(data.df, str_column_names=COLUMN_NAMES, normalize=True, date_column_names=[],
+                                index_field='last_field', index_path='')
     matrix_values = matrix.get(NJOBS)
 
     print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
@@ -43,7 +43,7 @@ def func(document_index):
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
     predictor = Predictor(data=matrix_values['values'], levels=LEVELS,
-                          list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR, save_extra_data=True)
+                          list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR, save_extra_data=True, mode="all")
 
     predicted_duplicates = predictor.predict_duplicates(NJOBS)
 

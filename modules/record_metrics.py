@@ -1,7 +1,8 @@
-def levenshtein_edit_distance(a, b, normal=None):
+def levenshtein_edit_distance(a, b):
     """Calculates the Levenshtein distance between a and b."""
     if not isinstance(a, str) or not isinstance(b, str):
         return None
+
     n, m = len(a), len(b)
     if n > m:
         a, b = b, a
@@ -16,15 +17,4 @@ def levenshtein_edit_distance(a, b, normal=None):
                 change += 1
             current_row[j] = min(add, delete, change)
 
-    res = current_row[n]
-
-    if normal is None:
-        return res
-    elif normal == "sum":
-        sum_len = len(a) + len(b)
-        return (sum_len - res) / sum_len
-    elif normal == "max":
-        max_len = max(len(a), len(b))
-        return (max_len - res) / max_len
-    else:
-        raise RuntimeError("{} normalization isn't supported.".format(normal))
+    return current_row[n]
