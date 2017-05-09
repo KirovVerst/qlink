@@ -91,8 +91,10 @@ class Predictor:
                 elif self.mode == 'max':
                     duplicates = [i] + self.recursive_search(i, state_index, extra_data)
 
-                if len(duplicates) >= 2:
-                    items.append(duplicates)
+                if len(duplicates) > 0:
+                    items.append(list(duplicates))
+                else:
+                    items.append([i])
 
             if count % 1000 == 0:
                 print('Processed: ', count)

@@ -8,6 +8,7 @@ from modules.duplicate_searching import Predictor
 from modules.result_estimation import get_differences, get_accuracy
 from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
+from miac import Indexation, MatrixCalculation, DuplicateSearching
 
 try:
     from conf import BASE_DIR
@@ -15,12 +16,12 @@ except Exception as ex:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 100
-DOCUMENT_NUMBER = 3
+DOCUMENT_NUMBER = 1
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
-LEVELS = list(map(lambda x: [x / 100] * 3, range(75, 85)))
+LEVELS = [[0.8, 0.8, 0.8]]
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
-INDEX_FIELDS = ['first_name', 'last_name', 'father']  # None, ['first_name']
+FIELDS = ['first_name', 'last_name', 'father_name']  # None, ['first_name']
 NJOBS = 1
 
 
@@ -31,26 +32,39 @@ def func(document_index):
     data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
 
     data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
+    mode = 'letters'
 
-    matrix = EditDistanceMatrix(data.df, str_column_names=COLUMN_NAMES, normalize=True, date_column_names=[],
-                                index_field='last_field', index_path='')
-    matrix_values = matrix.get(NJOBS)
+    indexator = Indexation(dataframe=data.df,
+                           index_field='last_name',
+                           mode=mode,
+                           index_output_path='index-{}-{}.json'.format(document_index, mode))
+    indexator.create_index_dict()
 
-    print("Matrix was calculated: \t\t{}".format(datetime.datetime.now()))
+    calculator = MatrixCalculation(dataframe=data.df,
+                                   index_path=indexator.output_path_json,
+                                   index_field='last_name',
+                                   matrix_path='matrix-{}-{}.json'.format(document_index, mode),
+                                   norm_matrix_path='matrix-norm-{}-{}.json'.format(document_index, mode),
+                                   str_fields=FIELDS,
+                                   date_fields=[])
+    calculator.create_matrix()
+
+    searcher = DuplicateSearching(dataframe=data.df,
+                                  norm_matrix_path=calculator.norm_matrix_path,
+                                  duplicates_output_path='duplicates-{}-{}.json'.format(document_index, mode),
+                                  mode='all')
+
+    searcher.search_duplicates(level=LEVELS[0])
 
     results_grouped_by_level = dict()
 
     logger = Logger(FOLDER_PATH, dataset_index=document_index)
 
-    predictor = Predictor(data=matrix_values['values'], levels=LEVELS,
-                          list2float=LIST_2_FLOAT, comparator=RECORD_COMPARATOR, save_extra_data=True, mode="all")
-
-    predicted_duplicates = predictor.predict_duplicates(NJOBS)
-
-    print("Duplicates were predicted: \t{}".format(datetime.datetime.now()))
+    predicted_duplicates = searcher.duplicates_list
 
     for duplicates in predicted_duplicates:
-        duplicate_items = sorted(duplicates['items'], key=lambda x: min(x))
+        duplicate_items = list(map(lambda l: list(map(lambda x: int(x), l)), duplicates['items']))
+        duplicate_items = sorted(duplicate_items, key=lambda x: min(x))
         errors = get_differences(data.true_duplicates['items'], duplicate_items)
         errors['level'] = duplicates['level']
         errors['extra_data'] = duplicates['extra_data']
@@ -69,9 +83,7 @@ def func(document_index):
         'dataset_size': len(data.df),
         'results': results_grouped_by_level,
         'time_delta': str(time_delta),
-        'max_dist': str(matrix_values['max_dist']),
-        'normalize': str(matrix.normalize),
-        "concat": str(matrix.fields == 1)
+        'normalize': str(True),
     }
     pprint.pprint(current_meta_data['results'])
     print("Dataset {0} is ready: \t\t{1}".format(document_index + 1, datetime.datetime.now()))

@@ -35,7 +35,7 @@ def get_differences(true, predict):
 
         if i2 < n2:
             s2 = set(predict[i2])
-            y = predict[i2][0]
+            y = int(predict[i2][0])
         else:
             if i1 < n1:
                 rest = true[i1:]

@@ -1,6 +1,7 @@
 import pandas as pd, numpy as np
 import os, datetime, json
 import itertools
+import copy
 
 from pathos.multiprocessing import Pool
 from collections import defaultdict
@@ -46,21 +47,19 @@ MIAC_BIG_DATA = {
     }
 }
 
-STR_FIELDS = ['first_name', 'last_name', 'father_name']
-DATE_FIELDS = ['birthday']
-FIELDS = STR_FIELDS + DATE_FIELDS
 
-
-def row_to_str(row):
+def row_to_str(row, fields):
+    fields.remove('original_id')
     r = ''
-    for field in STR_FIELDS + DATE_FIELDS:
+    for field in fields:
         r += str(row[field]) + ' '
     return r
 
 
-def get_lengths(row):
+def get_lengths(row, fields):
+    fields.remove('original_id')
     lengths = []
-    for field in FIELDS:
+    for field in fields:
         if isinstance(row[field], str):
             lengths.append(len(row[field]))
         else:
@@ -169,26 +168,28 @@ class Indexation:
 
 
 class MatrixCalculation:
-    def __init__(self, dataframe, index_path, matrix_output_path, index_field):
+    def __init__(self, dataframe, str_fields, date_fields, index_path, matrix_path, index_field, norm_matrix_path):
         self.dataframe = dataframe
         self.index_path = index_path
-        self.output_path = matrix_output_path
+        self.matrix_path = matrix_path
+        self.norm_matrix_path = norm_matrix_path
         self.index_field = index_field
+        self.str_fields = str_fields
+        self.date_fields = date_fields
 
-    def create_matrix(self, norm_matrix_path=None, njobs=-1):
+    def create_matrix(self, njobs=-1):
         s = start_message('Matrix')
-        matrix_generator = EditDistanceMatrix(df=self.dataframe,
-                                              str_column_names=STR_FIELDS, date_column_names=DATE_FIELDS,
+        matrix_generator = EditDistanceMatrix(dataframe=self.dataframe,
+                                              str_column_names=self.str_fields, date_column_names=self.date_fields,
                                               index_path=self.index_path, index_field=self.index_field,
-                                              normalize='sum')
+                                              normalize=True)
         matrix = matrix_generator.get(njobs)
-        with open(self.output_path, 'w') as fp:
+        with open(self.matrix_path, 'w') as fp:
             json.dump(matrix, fp)
 
-        if norm_matrix_path is not None:
-            matrix = matrix['values']
-            with open(norm_matrix_path, 'w') as fp:
-                json.dump(matrix, fp)
+        matrix = matrix['values']
+        with open(self.norm_matrix_path, 'w') as fp:
+            json.dump(matrix, fp)
 
         finish_message(s)
 
@@ -219,9 +220,9 @@ class Normalization:
         count = 0
         result = defaultdict(list)
         for i in keys:
-            length_i = get_lengths(self.dataframe.loc[int(i)])
+            length_i = get_lengths(self.dataframe.loc[int(i)], fields=self.dataframe.columns.values.tolist())
             for j, dist in self.matrix[i]:
-                length_j = get_lengths(self.dataframe.loc[j])
+                length_j = get_lengths(self.dataframe.loc[j], fields=self.dataframe.columns.values.tolist())
                 norm_dist = Normalization.normalize(length_i, length_j, dist)
                 result[i].append([j, norm_dist])
             count += 1
@@ -254,27 +255,31 @@ class DuplicateSearching:
             self.matrix = json.load(f)
         self.output_path = duplicates_output_path
         self.mode = mode
+        self.duplicates_list = []
 
     def search_duplicates(self, level):
-        if len(level) != len(FIELDS):
+        if len(level) != len(self.dataframe.columns.values.tolist()):
             print('Level threshold is not correct. length = ', len(level))
         s = start_message('Duplicate searching')
 
         predictor = Predictor(data=self.matrix, levels=[level], list2float='norm', comparator='and',
                               save_extra_data=False, mode=self.mode)
-        duplicates_list = predictor.predict_duplicates(njobs=1)
+
+        self.duplicates_list = predictor.predict_duplicates(njobs=1)
+        json_duplicates_list = copy.deepcopy(self.duplicates_list)
         extended_duplicates_list = []
-        for duplicates in duplicates_list:
+
+        for duplicates in json_duplicates_list:
             items = duplicates['items']
             for keys in items:
                 keys = list(set(map(lambda x: int(x), keys)))
                 info = dict()
                 for key in keys:
-                    info[key] = row_to_str(self.dataframe.loc[key])
+                    info[key] = row_to_str(self.dataframe.loc[key], self.dataframe.columns.values.tolist())
                 extended_duplicates_list.append(info)
 
-        duplicates_list[0]['items'] = extended_duplicates_list
+        json_duplicates_list[0]['items'] = extended_duplicates_list
         with open(self.output_path, 'w') as fp:
-            json.dump(duplicates_list, fp, ensure_ascii=False)
+            json.dump(json_duplicates_list, fp, ensure_ascii=False)
 
         finish_message(s)

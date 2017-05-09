@@ -72,7 +72,7 @@ class Logger(object):
                 dict_of_names = dict()
 
                 for index in pred_duplicates.union(true_duplicates):
-                    s = [df.iloc[index]['first_name'], df.iloc[index]['last_name'], df.iloc[index]['father']]
+                    s = [df.iloc[index]['first_name'], df.iloc[index]['last_name'], df.iloc[index]['father_name']]
                     dict_of_names[index] = " ".join(s)
 
                 for index in pred_duplicates:

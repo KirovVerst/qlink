@@ -10,17 +10,17 @@ from modules.record_processing import get_strings, remove_double_letters
 
 
 class EditDistanceMatrix(object):
-    def __init__(self, df, str_column_names, date_column_names, index_path, index_field, normalize,
+    def __init__(self, dataframe, str_column_names, date_column_names, index_path, index_field, normalize,
                  edit_distance_function=levenshtein_edit_distance):
         """
         
-        :param df: 
+        :param dataframe: 
         :param str_column_names: 
         :param edit_distance_function: 
         :param normalize: bool
         """
-        self.size = len(df)
-        self.df = df
+        self.size = len(dataframe)
+        self.dataframe = dataframe
         self.str_column_names = str_column_names
         self.date_column_names = date_column_names
         self.x = defaultdict(list)
@@ -42,24 +42,25 @@ class EditDistanceMatrix(object):
 
         max_distances = [-1] * len(self.fields)
         if row_indexes is None:
-            row_indexes = self.df.index.values.tolist()
+            row_indexes = self.dataframe.index.values.tolist()
         count = 0
         total_count = len(row_indexes)
 
         for i in row_indexes:
 
-            if self.df.loc[i][self.index_field] is not np.nan:
-                index_field_values = self.df.loc[i][self.index_field].split('-') + ['nan']
+            if self.dataframe.loc[i][self.index_field] is not np.nan:
+                index_field_values = self.dataframe.loc[i][self.index_field].split('-') + ['nan']
             else:
                 continue
 
-            s1 = get_strings(self.df.loc[i], self.str_column_names)
+            s1 = get_strings(self.dataframe.loc[i], self.str_column_names)
 
             for field in self.date_column_names:
-                s1.append([self.df.loc[i][field]])
+                s1.append([self.dataframe.loc[i][field]])
 
             for index_field_value in index_field_values:
-                available_keys = list(set(self.index_dict[index_field_value]))
+                if index_field_value in self.index_dict:
+                    available_keys = list(set(self.index_dict[index_field_value]))
 
                 try:
                     available_keys.remove(i)
@@ -68,9 +69,9 @@ class EditDistanceMatrix(object):
 
                 for j in available_keys:
 
-                    s2 = get_strings(self.df.loc[j], self.str_column_names)
+                    s2 = get_strings(self.dataframe.loc[j], self.str_column_names)
                     for field in self.date_column_names:
-                        s2.append([self.df.loc[j][field]])
+                        s2.append([self.dataframe.loc[j][field]])
 
                     distances = []
 
@@ -111,7 +112,7 @@ class EditDistanceMatrix(object):
 
     def get_ids(self, njobs):
         r = self.size % njobs
-        indexes = self.df.index.values.tolist()
+        indexes = self.dataframe.index.values.tolist()
         if r > 0:
             matrix = np.reshape(indexes[:-r], (-1, njobs))
         else:
@@ -169,12 +170,12 @@ class EditDistanceMatrix(object):
             index_fields = ['first_name']
         self.index_dict = dict()
         for field_name in index_fields:
-            self.df[field_name] = self.df[field_name].apply(remove_double_letters)
+            self.dataframe[field_name] = self.dataframe[field_name].apply(remove_double_letters)
             self.index_dict[field_name] = defaultdict(list)
 
-        for row_id, row in self.df.iterrows():
+        for row_id, row in self.dataframe.iterrows():
             for field_name in index_fields:
                 field_value = row[field_name]
-                rows = self.df[self.df[field_name].str.contains(field_value)].index.values.tolist()
+                rows = self.dataframe[self.dataframe[field_name].str.contains(field_value)].index.values.tolist()
 
                 self.index_dict[field_name][field_value] = list(set(rows + self.index_dict[field_name][field_value]))
