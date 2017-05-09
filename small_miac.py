@@ -13,8 +13,7 @@ def run(is_sample, size=None):
         df.to_csv(MIAC_SMALL_DATA['sample']['data'], index=True)
         folder = MIAC_SMALL_DATA['sample']
     """
-    indexator = Indexation(df, 'last_name', folder['index'])
-    indexator.create_index_dict()
+    
     """
 
     matrix_calculator = MatrixCalculation(df, folder['index'], folder['matrix'], index_field='last_name')
@@ -32,11 +31,6 @@ def search(is_sample):
 
 
 if __name__ == '__main__':
-    with open(MIAC_SMALL_DATA['full']['duplicates']) as f:
-        duplicates = json.load(f)
-
-    duplicates = duplicates[0]['items']
-    count = 0
-    for cluster in duplicates:
-        count += len(cluster.items())
-    print(len(pd.read_csv(MIAC_SMALL_DATA['full']['data'])) - count + len(duplicates))
+    df = pd.read_csv(MIAC_SMALL_DATA['sample']['data'], index_col='id')
+    indexator = Indexation(df, 'last_name', MIAC_SMALL_DATA['sample']['index-letters'], mode='letters')
+    indexator.create_index_dict()

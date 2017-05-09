@@ -15,7 +15,8 @@ MIAC_SMALL_DATA = {
     'sample': {
         'data': os.path.join(MIAC_SMALL_FOLDER, 'data-sample.csv'),
         'matrix': os.path.join(MIAC_SMALL_FOLDER, 'matrix-sample.json'),
-        'index': os.path.join(MIAC_SMALL_FOLDER, 'index-sample.json'),
+        'index-substr': os.path.join(MIAC_SMALL_FOLDER, 'index-sample-substr.json'),
+        'index-letters': os.path.join(MIAC_SMALL_FOLDER, 'index-sample-letters.json'),
         'norm-matrix': os.path.join(MIAC_SMALL_FOLDER, 'norm-matrix-sample.json'),
         'duplicates': os.path.join(MIAC_SMALL_FOLDER, 'duplicates-sample.json')
     },
@@ -106,10 +107,33 @@ def merge_dicts(dicts):
 
 
 class Indexation:
-    def __init__(self, dataframe, index_field, index_output_path):
+    def __init__(self, dataframe, index_field, index_output_path, mode):
+        """
+        
+        :param dataframe: 
+        :param index_field: 
+        :param index_output_path: 
+        :param mode: ```substr```, ```letters```
+        """
         self.dataframe = dataframe
         self.field = index_field
         self.output_path_json = index_output_path
+        self.index_function = self._letters_filter if mode == "letters" else self._substr_filter
+        self.level = 0.9
+
+    @staticmethod
+    def _check_common_letters(str1, set2, level):
+        set1 = set(str1)
+        common_part = len(set1.intersection(set2))
+
+        return common_part / len(set2) >= level and common_part / len(set1) >= level
+
+    def _substr_filter(self, dataframe, value):
+        return dataframe[dataframe[self.field].str.contains(value, na=False)]
+
+    def _letters_filter(self, dataframe, value):
+        set2 = set(value)
+        return dataframe[dataframe[self.field].apply(lambda x: Indexation._check_common_letters(x, set2, self.level))]
 
     def _pool_function(self, values):
         i = 0
@@ -117,7 +141,7 @@ class Indexation:
         for value in values:
             value_length = len(value)
             df_sub = self.dataframe[self.dataframe[self.field].str.len() <= 4 * value_length]
-            df_sub = df_sub[df_sub[self.field].str.contains(value, na=False)]
+            df_sub = self.index_function(dataframe=df_sub, value=value)
             index_dict[value] = list(map(lambda x: int(x), df_sub.index.tolist()))
             i += 1
             if i % 500 == 0:
