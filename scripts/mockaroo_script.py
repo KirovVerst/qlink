@@ -4,11 +4,11 @@ import pprint
 from collections import defaultdict
 
 from modules.dataset_receiving import Data
-from modules.duplicate_searching import Predictor
 from modules.result_estimation import get_differences, get_accuracy
-from modules.dataset_processing import EditDistanceMatrix
 from modules.result_saving import Logger
-from miac import Indexation, MatrixCalculation, DuplicateSearching
+from indexation import Indexation
+from matrix_calculation import MatrixCalculation
+from duplicate_searching import DuplicateSearching
 
 try:
     from conf import BASE_DIR
@@ -51,7 +51,7 @@ def func(document_index):
 
     searcher = DuplicateSearching(dataframe=data.df,
                                   norm_matrix_path=calculator.norm_matrix_path,
-                                  duplicates_output_path='duplicates-{}-{}.json'.format(document_index, mode),
+                                  duplicates_path='duplicates-{}-{}.json'.format(document_index, mode),
                                   mode='all')
 
     searcher.search_duplicates(level=LEVELS[0])

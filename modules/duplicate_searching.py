@@ -1,9 +1,32 @@
 import numpy as np
 import os
+import json
+import copy
+
 from pathos.multiprocessing import Pool
+from log_functions import start_message, finish_message
 
 
-class Predictor:
+def row_to_str(row, fields):
+    fields.remove('original_id')
+    r = ''
+    for field in fields:
+        r += str(row[field]) + ' '
+    return r
+
+
+def get_lengths(row, fields):
+    fields.remove('original_id')
+    lengths = []
+    for field in fields:
+        if isinstance(row[field], str):
+            lengths.append(len(row[field]))
+        else:
+            lengths.append(None)
+    return lengths
+
+
+class Searcher:
     def __init__(self, data, levels, list2float, comparator, save_extra_data, mode):
         """
         Class that provides a duplicate prediction in the dataset
@@ -158,3 +181,40 @@ class Predictor:
             with Pool(njobs) as p:
                 results = list(p.map(self._predict_for_one_level, range(len(self.state))))
         return results
+
+
+class DuplicateSearching:
+    def __init__(self, dataframe, norm_matrix_path, duplicates_path, mode):
+        self.dataframe = dataframe
+        with open(norm_matrix_path, 'r') as f:
+            self.matrix = json.load(f)
+        self.output_path = duplicates_path
+        self.mode = mode
+        self.duplicates_list = []
+
+    def search_duplicates(self, level):
+        if len(level) != len(self.dataframe.columns.values.tolist()):
+            print('Level threshold is not correct. length = ', len(level))
+        s = start_message('Duplicate searching')
+
+        predictor = Searcher(data=self.matrix, levels=[level], list2float='norm', comparator='and',
+                             save_extra_data=False, mode=self.mode)
+
+        self.duplicates_list = predictor.predict_duplicates(njobs=1)
+        json_duplicates_list = copy.deepcopy(self.duplicates_list)
+        extended_duplicates_list = []
+
+        for duplicates in json_duplicates_list:
+            items = duplicates['items']
+            for keys in items:
+                keys = list(set(map(lambda x: int(x), keys)))
+                info = dict()
+                for key in keys:
+                    info[key] = row_to_str(self.dataframe.loc[key], self.dataframe.columns.values.tolist())
+                extended_duplicates_list.append(info)
+
+        json_duplicates_list[0]['items'] = extended_duplicates_list
+        with open(self.output_path, 'w') as fp:
+            json.dump(json_duplicates_list, fp, ensure_ascii=False)
+
+        finish_message(s)

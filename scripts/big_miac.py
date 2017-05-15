@@ -1,6 +1,6 @@
 import pandas as pd
-import numpy as np
-from miac import Indexation, MIAC_BIG_DATA, MatrixCalculation, DuplicateSearching
+from duplicate_searching import DuplicateSearching
+from conf import MIAC_BIG_DATA
 
 
 def generate_sample():
@@ -20,6 +20,5 @@ def get_sample():
 if __name__ == "__main__":
     df = get_sample()
     searcher = DuplicateSearching(dataframe=df, norm_matrix_path=MIAC_BIG_DATA['sample']['norm-matrix'],
-                                  duplicates_output_path=MIAC_BIG_DATA['sample']['duplicates'],
-                                  mode='all')
+                                  duplicates_path=MIAC_BIG_DATA['sample']['duplicates'], mode='all')
     searcher.search_duplicates(level=[0.79, 0.79, 0.79, 0.89])
