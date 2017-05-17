@@ -21,3 +21,7 @@ def merge_dicts(dicts):
     for one_dict in dicts:
         result_dict.update(one_dict)
     return result_dict
+
+
+def miac_address_parser(s):
+    pass

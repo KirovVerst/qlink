@@ -69,9 +69,7 @@ class DataPreprocessing:
 
 
 if __name__ == '__main__':
-    start = datetime.datetime.now()
-    print("Start: {}".format(start))
-    df = pd.read_csv(DATASET_CSV_PATH)
-    processor = DataPreprocessing(df)
-    processor.clean()
-    processor.to_csv(path=os.path.join(MIAC_PATH, 'data-3.csv'))
+    dataframe = pd.read_excel(io=os.path.join(MIAC_PATH, "non-struct.xlsx"))
+    dataframe = dataframe[:2000]
+    dataframe = dataframe['ADR_REG']
+    dataframe.to_csv(os.path.join(MIAC_PATH, "non-struct.csv"), header=True, index=False)
