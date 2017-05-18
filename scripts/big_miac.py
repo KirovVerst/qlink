@@ -1,6 +1,7 @@
 import pandas as pd
+import os
 from duplicate_searching import DuplicateSearching
-from conf import MIAC_BIG_DATA
+from conf import MIAC_BIG_DATA, MIAC_BIG_FOLDER, MIAC_STR_FIELDS
 
 
 def generate_sample():
@@ -18,7 +19,8 @@ def get_sample():
 
 
 if __name__ == "__main__":
-    df = get_sample()
-    searcher = DuplicateSearching(dataframe=df, norm_matrix_path=MIAC_BIG_DATA['sample']['norm-matrix'],
-                                  duplicates_path=MIAC_BIG_DATA['sample']['duplicates'], mode='all')
-    searcher.search_duplicates(level=[0.79, 0.79, 0.79, 0.89])
+    df = pd.read_csv(os.path.join(MIAC_BIG_DATA['full']['data']), index_col='id')
+    df = df[df['last_name'].str[0] == 'а']
+    df.sort_values(by=['last_name', 'first_name'], inplace=True)
+    df = df[:1000]
+    df.to_csv('new-dataset.csv', index=True)
