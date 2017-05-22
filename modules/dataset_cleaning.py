@@ -1,31 +1,9 @@
-import os
 import re
-import pandas as pd
-from miac_experiments import MIAC_PATH
 
-i = 5
-PATH_RAW_DATA = os.path.join(MIAC_PATH, 'father_name_{}.csv'.format(i))
-PATH_DATA = os.path.join(MIAC_PATH, 'father_name_{}.csv'.format(i + 1))
 NUM_REGEX = re.compile('^[0-9]')
 SYMBOLS_REGEX = re.compile('^[=,]')
 
-soft = 'йьуеаоэяию'
-
-
-# удалить пробелы 0
-# удалить цифры 1
-# удалить = ,
-# в нижний регистр
-# оглы -> ович, кызы -> овна. мягкое окончание : йьуеаоэяию
-# удалить .
-# заменить е на ё
-
-def clean(s):
-    if type(s) is str:
-        r = s.replace('ё', 'е')
-        return r
-    else:
-        return s
+SOFT_LETTERS = 'йьуеаоэяию'
 
 
 def asian_father_name_processing(s):
@@ -34,7 +12,7 @@ def asian_father_name_processing(s):
         if pos > -1:
             s = s[:pos]
             s = s.strip(' -')
-            if len(s) > 0 and s[-1] in soft:
+            if len(s) > 0 and s[-1] in SOFT_LETTERS:
                 s += 'евич'
             else:
                 s += 'ович'
@@ -42,7 +20,7 @@ def asian_father_name_processing(s):
         if pos > -1:
             s = s[:pos]
             s = s.strip(' -')
-            if len(s) > 0 and s[-1] in soft:
+            if len(s) > 0 and s[-1] in SOFT_LETTERS:
                 s += 'евна'
             else:
                 s += 'овна'
@@ -63,8 +41,23 @@ def active_fixing(dataframe):
     return dataframe
 
 
-if __name__ == '__main__':
-    df = pd.read_csv(PATH_RAW_DATA)
-    df = df[df['father_name'].str.contains(' ')]
-    df = active_fixing(df)
-    df.to_csv(PATH_DATA)
+def dropnan(dataframe):
+    dataframe.dropna(axis='index', how='all', inplace=True)
+    return dataframe
+
+
+def asian_father_name_column_processing(dataframe):
+    dataframe['father_name'] = dataframe['father_name'].apply(asian_father_name_processing)
+    return dataframe
+
+
+def split_last_name(s):
+    s = s.strip('()')
+    s = s.split('(')
+    s = list(map(lambda w: w.strip(' '), s))
+    return '|'.join(s)
+
+
+def multiple_last_names(dataframe):
+    dataframe['last_name'] = dataframe['last_name'].apply(split_last_name)
+    return dataframe
