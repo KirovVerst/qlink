@@ -4,27 +4,30 @@ import itertools
 import os
 import json
 
-from log_functions import start_message, finish_message
-from utils import merge_dicts, rearrange_list
+from modules.log_functions import start_message, finish_message
+from modules.utils import merge_dicts, rearrange_list
 
 from collections import defaultdict
 from pathos.multiprocessing import Pool
 
 
 class Indexation:
-    def __init__(self, dataframe, index_field, index_output_path, mode):
+    MODE_LETTERS = 0
+    MODE_SUBSTR = 1
+
+    def __init__(self, dataframe, index_field, index_output_path, mode, level=0.9):
         """
 
         :param dataframe: 
         :param index_field: 
         :param index_output_path: 
-        :param mode: ```substr```, ```letters```
+        :param mode: 0, 1
         """
         self.dataframe = dataframe
         self.field = index_field
         self.output_path_json = index_output_path
-        self.index_function = self._letters_filter if mode == "letters" else self._substr_filter
-        self.level = 0.9
+        self.index_function = self._letters_filter if mode == Indexation.MODE_LETTERS else self._substr_filter
+        self.level = level
 
     @staticmethod
     def _check_common_letters(str1, set2, level):
@@ -53,17 +56,21 @@ class Indexation:
                 print(os.getpid(), ' : ', i, ' : ', datetime.datetime.now())
         return index_dict
 
-    def create_index_dict(self):
+    def create_index_dict(self, njobs):
+        if njobs == -1:
+            njobs = os.cpu_count()
         values = self.dataframe[self.field].values
         values = list(map(lambda value: value.split('-'), values))
         unique_values = np.unique(list(itertools.chain(*values)))
-        values = rearrange_list(unique_values, os.cpu_count())
+        values = rearrange_list(unique_values, njobs)
 
         s = start_message('Indexation')
         print('Unique values: ', len(unique_values))
-
-        with Pool() as p:
-            results = p.map(self._pool_function, values)
+        if njobs == 1:
+            results = [self._pool_function(values[0])]
+        else:
+            with Pool() as p:
+                results = p.map(self._pool_function, values)
 
         index_dict = merge_dicts(results)
 

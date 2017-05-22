@@ -8,7 +8,8 @@ except Exception:
     from conf_example import BASE_DIR
 
 DATASET_TYPES = {"mockaroo": os.path.join(BASE_DIR, "data", "mockaroo"),
-                 "dedupe_mockaroo": os.path.join(BASE_DIR, "data", "mockaroo")}
+                 "dedupe_mockaroo": os.path.join(BASE_DIR, "data", "mockaroo"),
+                 "miac_test": os.path.join(BASE_DIR, "data", "miac", "test")}
 
 
 class Data(object):
@@ -22,6 +23,10 @@ class Data(object):
                     "init_data_size": int, 
                     "document_index": int
                 }
+        if type == "miac_test":
+            kwargs = {
+                    "document_index": int
+                }
         if type == "sql":
             kwargs = {
                 "dialect": str. ``mysql``, ``sqlite``.
@@ -32,15 +37,22 @@ class Data(object):
                 "query": str. raw sql query to database
             }
         """
-        if dataset_type == "mockaroo":
+        if dataset_type == "mockaroo" or dataset_type == "miac_test":
             # dataset
             filename = "data_{0}.csv".format(kwargs['document_index'])
-            folder = os.path.join(DATASET_TYPES[dataset_type], "ready", str(kwargs['init_data_size']))
+            folder = os.path.join(DATASET_TYPES[dataset_type], "ready")
+            if dataset_type == "mockaroo":
+                folder = os.path.join(folder, str(kwargs['init_data_size']))
+
             self.path_to_dataset = os.path.join(folder, filename)
             self.df = read_csv(self.path_to_dataset)
 
             # duplicates
-            folder = os.path.join(DATASET_TYPES[dataset_type], "duplicates", str(kwargs['init_data_size']))
+            folder = os.path.join(DATASET_TYPES[dataset_type], "duplicates")
+
+            if dataset_type == "mockaroo":
+                folder = os.path.join(folder, str(kwargs['init_data_size']))
+
             filename = "data_{0}.json".format(kwargs['document_index'])
             self.path_to_true_duplicates = os.path.join(folder, filename)
             self.true_duplicates = {'items': []}

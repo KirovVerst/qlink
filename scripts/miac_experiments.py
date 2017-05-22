@@ -3,7 +3,10 @@ import os
 import re
 import datetime
 import json
-from conf import BASE_DIR
+from conf import BASE_DIR, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
+from modules.dataset_receiving import Data
+from modules.indexation import Indexation
+from modules.matrix_calculation import MatrixCalculation
 
 MIAC_PATH = os.path.join(BASE_DIR, 'data', 'miac')
 DATASET_XLS_PATH = os.path.join(MIAC_PATH, 'data2.xlsx')
@@ -68,8 +71,28 @@ class DataPreprocessing:
         self.dataframe.dropna(axis='index', how='all', inplace=True)
 
 
+MIAC_TEST_FOLDER = os.path.join(MIAC_PATH, 'test')
+MIAC_TEST_INDEX_FOLDER = os.path.join(MIAC_TEST_FOLDER, 'index')
+MIAC_TEST_MATRIX_FOLDER = os.path.join(MIAC_TEST_FOLDER, 'matrix')
+MIAC_TEST_NORM_MATRIX_FOLDER = os.path.join(MIAC_TEST_FOLDER, 'norm-matrix')
+
 if __name__ == '__main__':
-    dataframe = pd.read_excel(io=os.path.join(MIAC_PATH, "non-struct.xlsx"))
-    dataframe = dataframe[:2000]
-    dataframe = dataframe['ADR_REG']
-    dataframe.to_csv(os.path.join(MIAC_PATH, "non-struct.csv"), header=True, index=False)
+    data = Data(dataset_type="miac_test", kwargs=dict(document_index=0))
+    data.df.drop(['original_id'], axis=1, inplace=True)
+    data.df.to_csv('data.csv', index=True)
+    """
+    index_path = os.path.join(MIAC_TEST_INDEX_FOLDER, 'data_{}.json'.format(0))
+    indexator = Indexation(dataframe=data.df,
+                           index_field='last_name',
+                           index_output_path=index_path,
+                           mode=Indexation.MODE_LETTERS,
+                           level=0.85)
+    indexator.create_index_dict(njobs=1)
+
+    matrix_path = os.path.join(MIAC_TEST_MATRIX_FOLDER, 'data_{}.json'.format(0))
+    norm_matrix_path = os.path.join(MIAC_TEST_NORM_MATRIX_FOLDER, 'data_{}.json'.format(0))
+    calculator = MatrixCalculation(dataframe=data.df, date_fields=MIAC_DATE_FIELDS, str_fields=MIAC_STR_FIELDS,
+                                   index_field='last_name', index_path=index_path,
+                                   norm_matrix_path=norm_matrix_path, matrix_path=matrix_path)
+    calculator.create_matrix()
+    """

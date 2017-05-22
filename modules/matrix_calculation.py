@@ -1,7 +1,7 @@
 import json
 
-from log_functions import start_message, finish_message
-from dataset_processing import EditDistanceMatrix
+from modules.log_functions import start_message, finish_message
+from modules.dataset_processing import EditDistanceMatrix
 
 
 class MatrixCalculation:

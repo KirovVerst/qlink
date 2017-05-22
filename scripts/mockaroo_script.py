@@ -15,10 +15,10 @@ try:
 except Exception as ex:
     from conf_example import BASE_DIR
 
-INITIAL_DATA_SIZE = 100
+INITIAL_DATA_SIZE = 1000
 DOCUMENT_NUMBER = 1
 COLUMN_NAMES = ['first_name', 'last_name', 'father']
-LEVELS = [[0.8, 0.8, 0.8]]
+LEVELS = list(map(lambda l: [l / 100] * 3 + [0.9], range(70, 91, 2)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
 FIELDS = ['first_name', 'last_name', 'father_name']  # None, ['first_name']
@@ -29,16 +29,18 @@ def func(document_index):
     current_time = datetime.datetime.now()
     print("Dataset {0} was started: \t\t{1}".format(document_index + 1, current_time))
 
-    data_kwargs = {'init_data_size': INITIAL_DATA_SIZE, 'document_index': document_index}
+    data_kwargs = {'document_index': document_index}
 
-    data = Data(dataset_type="mockaroo", kwargs=data_kwargs)
+    data = Data(dataset_type="miac_test", kwargs=data_kwargs)
+    data.df.fillna(value='', inplace=True)
+
     mode = 'letters'
 
     indexator = Indexation(dataframe=data.df,
                            index_field='last_name',
                            mode=mode,
                            index_output_path='index-{}-{}.json'.format(document_index, mode))
-    indexator.create_index_dict()
+    # indexator.create_index_dict(njobs=1)
 
     calculator = MatrixCalculation(dataframe=data.df,
                                    index_path=indexator.output_path_json,
@@ -46,15 +48,15 @@ def func(document_index):
                                    matrix_path='matrix-{}-{}.json'.format(document_index, mode),
                                    norm_matrix_path='matrix-norm-{}-{}.json'.format(document_index, mode),
                                    str_fields=FIELDS,
-                                   date_fields=[])
-    calculator.create_matrix()
+                                   date_fields=['birthday'])
+    # calculator.create_matrix()
 
     searcher = DuplicateSearching(dataframe=data.df,
                                   norm_matrix_path=calculator.norm_matrix_path,
-                                  duplicates_path='duplicates-{}-{}.json'.format(document_index, mode),
+                                  duplicates_path='duplicates-{}-{}-max.json'.format(document_index, mode),
                                   mode='all')
 
-    searcher.search_duplicates(level=LEVELS[0])
+    searcher.search_duplicates(levels=LEVELS)
 
     results_grouped_by_level = dict()
 
@@ -65,7 +67,7 @@ def func(document_index):
     for duplicates in predicted_duplicates:
         duplicate_items = list(map(lambda l: list(map(lambda x: int(x), l)), duplicates['items']))
         duplicate_items = sorted(duplicate_items, key=lambda x: min(x))
-        errors = get_differences(data.true_duplicates['items'], duplicate_items)
+        errors = get_differences(true=data.true_duplicates['items'], predict=duplicate_items)
         errors['level'] = duplicates['level']
         errors['extra_data'] = duplicates['extra_data']
         level_str = str(errors['level'])
@@ -122,7 +124,6 @@ if __name__ == "__main__":
 
     meta_data = {
         "number_of_datasets": DOCUMENT_NUMBER,
-        "init_dataset_size": INITIAL_DATA_SIZE,
         "dataset_fields": COLUMN_NAMES,
         "levels": LEVELS,
         "list2float_function": LIST_2_FLOAT,

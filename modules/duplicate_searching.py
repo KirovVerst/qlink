@@ -4,11 +4,12 @@ import json
 import copy
 
 from pathos.multiprocessing import Pool
-from log_functions import start_message, finish_message
+from modules.log_functions import start_message, finish_message
 
 
 def row_to_str(row, fields):
-    fields.remove('original_id')
+    if 'original_id' in fields:
+        fields.remove('original_id')
     r = ''
     for field in fields:
         r += str(row[field]) + ' '
@@ -104,6 +105,7 @@ class Searcher:
         items = []
         extra_data = dict()
         count = 0
+        print('Level: ', self.state[state_index]['level'])
         print('Keys: ', len(self.data))
         for i in self.data:
             count += 1
@@ -192,12 +194,10 @@ class DuplicateSearching:
         self.mode = mode
         self.duplicates_list = []
 
-    def search_duplicates(self, level):
-        if len(level) != len(self.dataframe.columns.values.tolist()):
-            print('Level threshold is not correct. length = ', len(level))
+    def search_duplicates(self, levels):
         s = start_message('Duplicate searching')
 
-        predictor = Searcher(data=self.matrix, levels=[level], list2float='norm', comparator='and',
+        predictor = Searcher(data=self.matrix, levels=levels, list2float='norm', comparator='and',
                              save_extra_data=False, mode=self.mode)
 
         self.duplicates_list = predictor.predict_duplicates(njobs=1)
@@ -206,6 +206,7 @@ class DuplicateSearching:
 
         for duplicates in json_duplicates_list:
             items = duplicates['items']
+            items = list(filter(lambda d: len(d) > 1, items))
             for keys in items:
                 keys = list(set(map(lambda x: int(x), keys)))
                 info = dict()

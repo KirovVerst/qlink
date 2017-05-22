@@ -30,7 +30,7 @@ class Logger(object):
             os.mkdir(folder)
 
         with open(os.path.join(folder, 'duplicates.json'), 'w') as f:
-            json.dump(duplicates, f)
+            json.dump(duplicates, f, ensure_ascii=False)
 
     def save_data(self, data, file_path=None):
 
@@ -38,7 +38,7 @@ class Logger(object):
             file_path = os.path.join(self.folder_path, 'meta.json')
 
         with open(file_path, 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, ensure_ascii=False)
 
     def save_errors(self, df, errors):
         """
@@ -72,8 +72,9 @@ class Logger(object):
                 dict_of_names = dict()
 
                 for index in pred_duplicates.union(true_duplicates):
-                    s = [df.iloc[index]['first_name'], df.iloc[index]['last_name'], df.iloc[index]['father_name']]
-                    dict_of_names[index] = " ".join(s)
+                    dict_of_names[index] = ""
+                    for field in df.columns.values:
+                        dict_of_names[index] += " " + str(df.iloc[index][field])
 
                 for index in pred_duplicates:
                     item['predicted'][index] = dict(data=dict_of_names[index])
@@ -85,4 +86,4 @@ class Logger(object):
                     if index in errors["extra_data"]:
                         item['true'][index].update(errors["extra_data"][index])
                 items.append(item)
-            json.dump(dict(items=items), fp)
+            json.dump(dict(items=items), fp, ensure_ascii=False)

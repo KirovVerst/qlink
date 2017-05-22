@@ -47,9 +47,10 @@ class EditDistanceMatrix(object):
         total_count = len(row_indexes)
 
         for i in row_indexes:
+            self.x[i] = []
 
-            if self.dataframe.loc[i][self.index_field] is not np.nan:
-                index_field_values = self.dataframe.loc[i][self.index_field].split('-') + ['nan']
+            if self.dataframe.loc[i][self.index_field] != '':
+                index_field_values = self.dataframe.loc[i][self.index_field].split('-')
             else:
                 continue
 
@@ -79,13 +80,16 @@ class EditDistanceMatrix(object):
                         if field_name == self.index_field:
                             list_values_1 = [index_field_value]
                         else:
-                            list_values_1 = list(filter(lambda x: x is not None, s1[k]))
-                        list_values_2 = list(filter(lambda x: x is not None, s2[k]))
+                            list_values_1 = list(filter(lambda x: len(x) > 0, s1[k]))
+                        list_values_2 = list(filter(lambda x: len(x) > 0, s2[k]))
                         field_distance = []
-                        for v1 in list_values_1:
-                            for v2 in list_values_2:
-                                current_distance = self.func(v1, v2)
-                                field_distance.append([current_distance, len(v1), len(v2)])
+                        try:
+                            for v1 in list_values_1:
+                                for v2 in list_values_2:
+                                    current_distance = self.func(v1, v2)
+                                    field_distance.append([current_distance, len(v1), len(v2)])
+                        except:
+                            print(v2)
 
                         if len(field_distance) == 0:
                             distances.append(None)
