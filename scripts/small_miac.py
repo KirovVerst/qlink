@@ -1,7 +1,6 @@
 import pandas as pd
 import json
-import os
-from conf import MIAC_SMALL_DATA, MIAC_STR_FIELDS, MIAC_DATE_FIELDS, MIAC_SMALL_FOLDER
+from conf import MIAC_SMALL_DATA, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
 from modules.indexation import Indexation
 from modules.matrix_calculation import MatrixCalculation
 from modules.duplicate_searching import DuplicateSearching
@@ -55,40 +54,4 @@ def search(is_sample):
 
 
 if __name__ == '__main__':
-    # search(is_sample=False)
-    with open(MIAC_SMALL_DATA['full']['duplicates'], 'r') as fp:
-        duplicates = json.load(fp)
-    duplicates = duplicates[0]['items']
-    one = 0
-    two = 0
-    three = 0
-    more = 0
-    for cluster in duplicates:
-        size = len(cluster.keys())
-        if size > 3:
-            more += 1
-        elif size > 2:
-            three += 1
-        elif size > 1:
-            two += 1
-        elif size == 1:
-            one += 1
-    df = pd.read_csv(MIAC_SMALL_DATA['full']['data'])
-    total = len(df)
-    unique = total - two - 2 * three
-    print('one : ', total - two * 2 - three * 3)
-    print('two : ', two)
-    print('three : ', three)
-    print('more : ', more)
-    print('total : ', total)
-    print('unique : ', unique)
-
-    """
-    r = r'[a-zA-Z0-9.,*@]'
-    df = pd.read_csv('/Users/Kirov/Science/RecordLinkage/data/miac/small/data-original.csv')
-    temp = pd.concat([df[df['father_name'].str.contains('глы', na=False)],
-                      df[df['father_name'].str.contains('кызы', na=False)],
-                      df[df['father_name'].str.contains('кзы', na=False)]])
-    print('father_name', " : ", len(temp))
-    print(temp)
-    """
+    pass
