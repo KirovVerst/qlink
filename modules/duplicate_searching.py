@@ -7,26 +7,6 @@ from pathos.multiprocessing import Pool
 from modules.log_functions import start_message, finish_message
 
 
-def row_to_str(row, fields):
-    if 'original_id' in fields:
-        fields.remove('original_id')
-    r = ''
-    for field in fields:
-        r += str(row[field]) + ' '
-    return r
-
-
-def get_lengths(row, fields):
-    fields.remove('original_id')
-    lengths = []
-    for field in fields:
-        if isinstance(row[field], str):
-            lengths.append(len(row[field]))
-        else:
-            lengths.append(None)
-    return lengths
-
-
 class Searcher:
     def __init__(self, data, levels, list2float, comparator, save_extra_data, mode):
         """
@@ -211,7 +191,8 @@ class DuplicateSearching:
                 keys = list(set(map(lambda x: int(x), keys)))
                 info = dict()
                 for key in keys:
-                    info[key] = row_to_str(self.dataframe.loc[key], self.dataframe.columns.values.tolist())
+                    info[key] = DuplicateSearching.row_to_str(self.dataframe.loc[key],
+                                                              self.dataframe.columns.values.tolist())
                 extended_duplicates_list.append(info)
 
         json_duplicates_list[0]['items'] = extended_duplicates_list
@@ -219,3 +200,9 @@ class DuplicateSearching:
             json.dump(json_duplicates_list, fp, ensure_ascii=False)
 
         finish_message(s)
+
+    @staticmethod
+    def row_to_str(row, column_names):
+        values = list(map(lambda column_name: str(row[column_name]), column_names))
+        result = ' '.join(values)
+        return result
