@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathos.multiprocessing import Pool
 
 from modules.record_metrics import levenshtein_edit_distance
-from modules.record_processing import get_strings, remove_double_letters
+from modules.record_processing import get_strings
 
 
 class EditDistanceMatrix(object):
@@ -24,7 +24,7 @@ class EditDistanceMatrix(object):
         self.str_column_names = str_column_names
         self.date_column_names = date_column_names
         self.x = defaultdict(list)
-        self.func = edit_distance_function
+        self.edit_distance = edit_distance_function
         self.normalize = normalize
         self.max_dist = []
         self.fields = self.str_column_names + self.date_column_names
@@ -83,13 +83,10 @@ class EditDistanceMatrix(object):
                             list_values_1 = list(filter(lambda x: len(x) > 0, s1[k]))
                         list_values_2 = list(filter(lambda x: len(x) > 0, s2[k]))
                         field_distance = []
-                        try:
-                            for v1 in list_values_1:
-                                for v2 in list_values_2:
-                                    current_distance = self.func(v1, v2)
-                                    field_distance.append([current_distance, len(v1), len(v2)])
-                        except:
-                            print(v2)
+                        for v1 in list_values_1:
+                            for v2 in list_values_2:
+                                current_distance = self.edit_distance(v1, v2)
+                                field_distance.append([current_distance, len(v1), len(v2)])
 
                         if len(field_distance) == 0:
                             distances.append(None)
@@ -168,18 +165,3 @@ class EditDistanceMatrix(object):
             'values': self.x,
             'max_dist': list(map(int, self.max_dist))
         }
-
-    def _init_index(self, index_fields):
-        if index_fields is None:
-            index_fields = ['first_name']
-        self.index_dict = dict()
-        for field_name in index_fields:
-            self.dataframe[field_name] = self.dataframe[field_name].apply(remove_double_letters)
-            self.index_dict[field_name] = defaultdict(list)
-
-        for row_id, row in self.dataframe.iterrows():
-            for field_name in index_fields:
-                field_value = row[field_name]
-                rows = self.dataframe[self.dataframe[field_name].str.contains(field_value)].index.values.tolist()
-
-                self.index_dict[field_name][field_value] = list(set(rows + self.index_dict[field_name][field_value]))
