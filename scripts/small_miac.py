@@ -54,4 +54,4 @@ def search(is_sample):
 
 
 if __name__ == '__main__':
-    pass
+    run(is_sample=True)
