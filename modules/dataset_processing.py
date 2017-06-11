@@ -81,6 +81,7 @@ class EditDistanceMatrix(object):
                             list_values_1 = [index_field_value]
                         else:
                             list_values_1 = list(filter(lambda x: len(x) > 0, s1[k]))
+
                         list_values_2 = list(filter(lambda x: len(x) > 0, s2[k]))
                         field_distance = []
                         for v1 in list_values_1:

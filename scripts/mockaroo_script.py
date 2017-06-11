@@ -10,18 +10,18 @@ from indexation import Indexation
 from matrix_calculation import MatrixCalculation
 from duplicate_searching import DuplicateSearching
 
+from conf import MIAC_DATE_FIELDS, MIAC_STR_FIELDS
+
 try:
     from conf import BASE_DIR
 except Exception as ex:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 1000
-DOCUMENT_NUMBER = 1
-COLUMN_NAMES = ['first_name', 'last_name', 'father']
+DOCUMENT_NUMBER = 3
 LEVELS = list(map(lambda l: [l / 100] * 3 + [0.9], range(70, 91, 2)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
-FIELDS = ['first_name', 'last_name', 'father_name']  # None, ['first_name']
 NJOBS = 1
 
 
@@ -40,16 +40,16 @@ def func(document_index):
                            index_field='last_name',
                            mode=mode,
                            index_output_path='index-{}-{}.json'.format(document_index, mode))
-    # indexator.create_index_dict(njobs=1)
+    indexator.create_index_dict(njobs=1)
 
     calculator = MatrixCalculation(dataframe=data.df,
                                    index_path=indexator.output_path_json,
                                    index_field='last_name',
                                    matrix_path='matrix-{}-{}.json'.format(document_index, mode),
                                    norm_matrix_path='matrix-norm-{}-{}.json'.format(document_index, mode),
-                                   str_fields=FIELDS,
-                                   date_fields=['birthday'])
-    # calculator.create_matrix()
+                                   str_fields=MIAC_STR_FIELDS,
+                                   date_fields=MIAC_DATE_FIELDS)
+    calculator.create_matrix()
 
     searcher = DuplicateSearching(dataframe=data.df,
                                   norm_matrix_path=calculator.norm_matrix_path,
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     total_number_of_errors = 0
 
     average_result = defaultdict(dict)
-    for i in range(DOCUMENT_NUMBER):
+    for i in range(2, DOCUMENT_NUMBER):
         result = func(i)
         for level, value in result.items():
             try:
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     meta_data = {
         "number_of_datasets": DOCUMENT_NUMBER,
-        "dataset_fields": COLUMN_NAMES,
+        "dataset_fields": MIAC_STR_FIELDS + MIAC_DATE_FIELDS,
         "levels": LEVELS,
         "list2float_function": LIST_2_FLOAT,
         "record_comparision_function": RECORD_COMPARATOR,

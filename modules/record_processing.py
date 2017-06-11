@@ -27,5 +27,5 @@ def get_strings(row, column_names):
             s = list(map(remove_double_letters, s))
             values_list.append(s)
         else:
-            values_list.append([None])
+            values_list.append([''])
     return values_list

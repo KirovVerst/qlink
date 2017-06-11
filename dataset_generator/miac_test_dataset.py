@@ -10,8 +10,8 @@ DATA_FOLDER_ORIGINAL = os.path.join(DATA_FOLDER, 'ready')
 DATA_FOLDER_DUPLICATES = os.path.join(DATA_FOLDER, 'duplicates')
 
 
-def get_dataset(i):
-    path = os.path.join(DATA_FOLDER_ORIGINAL, 'data_{}.csv'.format(i))
+def get_dataset(document_number):
+    path = os.path.join(DATA_FOLDER_ORIGINAL, 'data_{}.csv'.format(document_number))
     dataset = pd.read_csv(path)
     return dataset
 
@@ -28,30 +28,29 @@ def get_duplicates(dataset):
     return duplicates
 
 
-def create_duplicates():
-    dataset = get_dataset(i=0)
+def create_duplicates(document_number):
+    dataset = get_dataset(document_number)
     duplicates = get_duplicates(dataset)
     json_duplicates = dict(items=list(duplicates.values()))
-    with open(os.path.join(DATA_FOLDER_DUPLICATES, 'data_{}.json'.format(0)), 'w') as fp:
+    with open(os.path.join(DATA_FOLDER_DUPLICATES, 'data_{}.json'.format(document_number)), 'w') as fp:
         json.dump(json_duplicates, fp, ensure_ascii=False)
 
 
-def get_stats(i):
-    dataset = get_dataset(i)
-    ids = dataset['original_id'].values.tolist()
-    print('Total: ', len(ids))
-    print('Unique: ', len(set(ids)))
-    g = groupby(ids)
-    duplicates = []
-    for k, v in g:
-        t = list(v)
-        if len(t) > 1:
-            duplicates.append(t)
-    for v in duplicates:
-        print(list(v))
-# 9, 19
-# 981 + 9 = 990
+def get_stats(document_number):
+    dataset = get_dataset(document_number)
+    l = dataset['original_id'].values.tolist()
+    s = set(l)
+    print('Total: ', len(l))
+    print('Unique: ', len(s))
+    result = {1: 0, 2: 0, 3: 0}
+    for value in s:
+        count = l.count(value)
+        if count in result:
+            result[count] += 1
+        else:
+            result[3] += 1
+    print(result)
 
 
 if __name__ == '__main__':
-    get_stats(i=0)
+    create_duplicates(document_number=2)
