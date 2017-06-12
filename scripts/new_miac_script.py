@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import datetime
 
 from modules.indexation import Indexation
 from modules.matrix_calculation import MatrixCalculation
@@ -10,27 +11,41 @@ DATA_FOLDER = os.path.join(BASE_DIR, "data", "miac", "test")
 
 DOCUMENT_INDEX = 2
 
-INDEX_PATH = 'index_{}.json'.format(DOCUMENT_INDEX)
-NORM_MATRIX_PATH = 'norm_matrix_{}.json'.format(DOCUMENT_INDEX)
-MATRIX_PATH = 'matrix_{}.json'.format(DOCUMENT_INDEX)
-DUPLICATES_PATH = 'duplicates_{}.json'.format(DOCUMENT_INDEX)
+READY_DATA_PATH = os.path.join(DATA_FOLDER, 'ready', 'data_{}.csv'.format(DOCUMENT_INDEX))
+INDEX_PATH = os.path.join(DATA_FOLDER, 'index', 'index_{}.json'.format(DOCUMENT_INDEX))
+NORM_MATRIX_PATH = os.path.join(DATA_FOLDER, 'norm_matrix', 'norm_matrix_{}.json'.format(DOCUMENT_INDEX))
+MATRIX_PATH = os.path.join(DATA_FOLDER, 'matrix', 'matrix_{}.json'.format(DOCUMENT_INDEX))
+DUPLICATES_PATH = os.path.join(DATA_FOLDER, 'results', 'duplicates_{}.json'.format(DOCUMENT_INDEX))
+
+INDEX_FIELD = 'last_name'
 
 if __name__ == '__main__':
-    dataframe = pd.read_csv(os.path.join(DATA_FOLDER, 'ready', 'data_{}.csv'.format(DOCUMENT_INDEX)))
-    indexator = Indexation(dataframe=dataframe, index_field='last_name',
+    s = datetime.datetime.now()
+    dataframe = pd.read_csv(READY_DATA_PATH)
+    indexator = Indexation(dataframe=dataframe,
+                           index_field=INDEX_FIELD,
                            index_output_path=INDEX_PATH,
-                           mode=Indexation.MODE_LETTERS, level=0.8)
+                           mode=Indexation.MODE_LETTERS,
+                           level=0.5)
 
-    indexator.create_index_dict(njobs=-1)
+    # indexator.create_index_dict(njobs=-1)
 
-    calculator = MatrixCalculation(dataframe=dataframe, str_fields=MIAC_STR_FIELDS, date_fields=MIAC_DATE_FIELDS,
-                                   index_path=INDEX_PATH, index_field='last_name',
+    calculator = MatrixCalculation(dataframe=dataframe,
+                                   str_fields=MIAC_STR_FIELDS,
+                                   date_fields=MIAC_DATE_FIELDS,
+                                   index_path=INDEX_PATH,
+                                   index_field=INDEX_FIELD,
                                    norm_matrix_path=NORM_MATRIX_PATH,
                                    matrix_path=MATRIX_PATH)
 
-    calculator.create_matrix(njobs=-1)
+    # calculator.create_matrix(njobs=-1)
 
-    searcher = DuplicateSearching(dataframe=dataframe, norm_matrix_path=NORM_MATRIX_PATH,
-                                  duplicates_path=DUPLICATES_PATH, mode='all')
+    searcher = DuplicateSearching(dataframe=dataframe,
+                                  norm_matrix_path=NORM_MATRIX_PATH,
+                                  duplicates_path=DUPLICATES_PATH,
+                                  mode='all')
 
     searcher.search_duplicates(levels=[[0.8, 0.8, 0.8, 0.9]])
+    duplicates = searcher.duplicates_list
+    print(duplicates)
+    print("Total: ", str(datetime.datetime.now() - s))

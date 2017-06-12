@@ -18,7 +18,7 @@ except Exception as ex:
     from conf_example import BASE_DIR
 
 INITIAL_DATA_SIZE = 1000
-DOCUMENT_NUMBER = 3
+DOCUMENT_NUMBER = 1
 LEVELS = list(map(lambda l: [l / 100] * 3 + [0.9], range(70, 91, 2)))
 LIST_2_FLOAT = "norm"  # "norm", "sum"
 RECORD_COMPARATOR = "and"  # "and", "or"
@@ -34,13 +34,14 @@ def func(document_index):
     data = Data(dataset_type="miac_test", kwargs=data_kwargs)
     data.df.fillna(value='', inplace=True)
 
-    mode = 'letters'
+    mode = Indexation.MODE_LETTERS
 
     indexator = Indexation(dataframe=data.df,
                            index_field='last_name',
                            mode=mode,
+                           level=0,
                            index_output_path='index-{}-{}.json'.format(document_index, mode))
-    indexator.create_index_dict(njobs=1)
+    indexator.create_index_dict(njobs=-1)
 
     calculator = MatrixCalculation(dataframe=data.df,
                                    index_path=indexator.output_path_json,
@@ -49,7 +50,7 @@ def func(document_index):
                                    norm_matrix_path='matrix-norm-{}-{}.json'.format(document_index, mode),
                                    str_fields=MIAC_STR_FIELDS,
                                    date_fields=MIAC_DATE_FIELDS)
-    calculator.create_matrix()
+    calculator.create_matrix(njobs=-1)
 
     searcher = DuplicateSearching(dataframe=data.df,
                                   norm_matrix_path=calculator.norm_matrix_path,
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     total_number_of_errors = 0
 
     average_result = defaultdict(dict)
-    for i in range(2, DOCUMENT_NUMBER):
+    for i in range(DOCUMENT_NUMBER):
         result = func(i)
         for level, value in result.items():
             try:
