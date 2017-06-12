@@ -7,7 +7,7 @@ from pathos.multiprocessing import Pool
 from modules.log_functions import start_message, finish_message
 
 
-class Searcher:
+class DuplicateSearching:
     def __init__(self, data, levels, list2float, comparator, save_extra_data, mode):
         """
         Class that provides a duplicate prediction in the dataset
@@ -165,7 +165,7 @@ class Searcher:
         return results
 
 
-class DuplicateSearching:
+class Searcher:
     def __init__(self, dataframe, norm_matrix_path, duplicates_path, mode):
         self.dataframe = dataframe
         with open(norm_matrix_path, 'r') as f:
@@ -177,8 +177,8 @@ class DuplicateSearching:
     def search_duplicates(self, levels):
         s = start_message('Duplicate searching')
 
-        predictor = Searcher(data=self.matrix, levels=levels, list2float='norm', comparator='and',
-                             save_extra_data=False, mode=self.mode)
+        predictor = DuplicateSearching(data=self.matrix, levels=levels, list2float='norm', comparator='and',
+                                       save_extra_data=False, mode=self.mode)
 
         self.duplicates_list = predictor.predict_duplicates(njobs=1)
         json_duplicates_list = copy.deepcopy(self.duplicates_list)
@@ -191,8 +191,8 @@ class DuplicateSearching:
                 keys = list(set(map(lambda x: int(x), keys)))
                 info = dict()
                 for key in keys:
-                    info[key] = DuplicateSearching.row_to_str(self.dataframe.loc[key],
-                                                              self.dataframe.columns.values.tolist())
+                    info[key] = Searcher.row_to_str(self.dataframe.loc[key],
+                                                    self.dataframe.columns.values.tolist())
                 extended_duplicates_list.append(info)
 
         json_duplicates_list[0]['items'] = extended_duplicates_list

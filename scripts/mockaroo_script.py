@@ -8,7 +8,7 @@ from modules.result_estimation import get_differences, get_accuracy
 from modules.result_saving import Logger
 from indexation import Indexation
 from matrix_calculation import MatrixCalculation
-from duplicate_searching import DuplicateSearching
+from duplicate_searching import Searcher
 
 from conf import MIAC_DATE_FIELDS, MIAC_STR_FIELDS
 
@@ -52,10 +52,10 @@ def func(document_index):
                                    date_fields=MIAC_DATE_FIELDS)
     calculator.create_matrix(njobs=-1)
 
-    searcher = DuplicateSearching(dataframe=data.df,
-                                  norm_matrix_path=calculator.norm_matrix_path,
-                                  duplicates_path='duplicates-{}-{}-max.json'.format(document_index, mode),
-                                  mode='all')
+    searcher = Searcher(dataframe=data.df,
+                        norm_matrix_path=calculator.norm_matrix_path,
+                        duplicates_path='duplicates-{}-{}-max.json'.format(document_index, mode),
+                        mode='all')
 
     searcher.search_duplicates(levels=LEVELS)
 

@@ -3,7 +3,7 @@ import json
 from conf import MIAC_SMALL_DATA, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
 from modules.indexation import Indexation
 from modules.matrix_calculation import MatrixCalculation
-from modules.duplicate_searching import DuplicateSearching
+from modules.duplicate_searching import Searcher
 
 
 def run(is_sample, size=None):
@@ -36,20 +36,20 @@ def run(is_sample, size=None):
                                           date_fields=MIAC_DATE_FIELDS)
     matrix_calculator.create_matrix(njobs=-1)
 
-    searcher = DuplicateSearching(dataframe=dataframe,
-                                  norm_matrix_path=folder['norm-matrix'],
-                                  duplicates_path=folder['duplicates'],
-                                  mode='all')
+    searcher = Searcher(dataframe=dataframe,
+                        norm_matrix_path=folder['norm-matrix'],
+                        duplicates_path=folder['duplicates'],
+                        mode='all')
     searcher.search_duplicates([[0.8, 0.8, 0.8, 0.9]])
 
 
 def search(is_sample):
     folder = MIAC_SMALL_DATA['sample'] if is_sample else MIAC_SMALL_DATA['full']
     dataframe = pd.read_csv(folder['data'], index_col='id')
-    searcher = DuplicateSearching(dataframe=dataframe,
-                                  norm_matrix_path=folder['norm-matrix'],
-                                  duplicates_path=folder['duplicates'],
-                                  mode='all')
+    searcher = Searcher(dataframe=dataframe,
+                        norm_matrix_path=folder['norm-matrix'],
+                        duplicates_path=folder['duplicates'],
+                        mode='all')
     searcher.search_duplicates([[0.8, 0.8, 0.8, 0.9]])
 
 
