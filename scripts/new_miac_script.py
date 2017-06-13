@@ -1,5 +1,5 @@
 import pandas as pd
-import os
+import os, json
 import datetime
 
 from modules.indexation import Indexation
@@ -27,10 +27,9 @@ if __name__ == '__main__':
                            index_field=INDEX_FIELD,
                            index_output_path=INDEX_PATH,
                            mode=Indexation.MODE_LETTERS,
-                           level=0.5)
+                           level=0.7)
 
-    # indexator.create_index_dict(njobs=-1)
-
+    indexator.create_index_dict(njobs=-1)
     calculator = MatrixCalculation(dataframe=dataframe,
                                    str_fields=MIAC_STR_FIELDS,
                                    date_fields=MIAC_DATE_FIELDS,
