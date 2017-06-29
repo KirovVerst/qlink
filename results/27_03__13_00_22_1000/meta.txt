@@ -1,5 +1,0 @@
-Dataset count: 12
-Initial dataset size: 1000
-Average time: 0:24:32.642726
-Average error number: 2.8333333333333335
-Total time: 1:13:44.504374

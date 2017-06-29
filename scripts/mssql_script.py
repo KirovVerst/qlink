@@ -37,6 +37,3 @@ def convert_birthday(birthday):
 
 if __name__ == "__main__":
     dataframe = pd.read_csv(DATA_PATH, index_col='id')
-    # dataframe.fillna(value='', inplace=True)
-    # dataframe['DocumentDate'] = dataframe['DocumentDate'].apply(convert_birthday)
-    # dataframe['BirthDate'] = dataframe['BirthDate'].apply(convert_birthday)

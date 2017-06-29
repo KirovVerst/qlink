@@ -1,3 +1,0 @@
-Dataset size: 1390
-Errors: 5.0
-Time: 0:24:44.162407

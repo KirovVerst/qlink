@@ -1,5 +1,4 @@
 import pandas as pd
-import json
 from conf import MIAC_SMALL_DATA, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
 from modules.indexation import Indexation
 from modules.matrix_calculation import MatrixCalculation

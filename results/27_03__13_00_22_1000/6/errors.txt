@@ -1,7 +1,0 @@
-Error 1:
-Predicted: {413, 215}
-	413: Jerry Ray | Brian
-	215: Jeffrrey Day | Brian
-True: {215}
-	215: Jeffrrey Day | Brian
-

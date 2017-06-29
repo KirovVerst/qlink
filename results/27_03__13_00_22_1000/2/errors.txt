@@ -1,9 +1,0 @@
-Error 1:
-Predicted: {666, 583, 15}
-	666: Terry Jacobs | Craig
-	583: Garry Jacobss | Craig
-	15: Terr Jacobs | Craig
-True: {666, 15}
-	666: Terry Jacobs | Craig
-	15: Terr Jacobs | Craig
-
