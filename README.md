@@ -1,11 +1,6 @@
 # record_linkage
 Entity Resolution and Record Linkage application
-## Data generation
-```
-$ cd dataset_generator
-$ python generation.py
-```
-Dataset configurations are in `dataset_generator/generation.py`
+
 ## Database configuration
 ```
 $ cp conf_example.py conf.py
