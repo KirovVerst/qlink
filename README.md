@@ -1,5 +1,5 @@
 # record_linkage
-Entity Resolution and Record Linkage application
+Entity Resolution and Record Linkage library.
 
 ## Database configuration
 ```
