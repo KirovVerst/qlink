@@ -1,12 +1,12 @@
-import numpy as np
-import os
 import json
-
+import os
 from collections import defaultdict
+
+import numpy as np
+from qlink.record_metrics import levenshtein_edit_distance
 from pathos.multiprocessing import Pool
 
-from modules.record_metrics import levenshtein_edit_distance
-from modules.record_processing import get_strings
+from qlink.record_processing import get_strings
 
 
 class EditDistanceMatrix(object):

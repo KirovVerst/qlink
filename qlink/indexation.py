@@ -1,14 +1,14 @@
-import numpy as np
 import datetime
 import itertools
-import os
 import json
-
-from modules.log_functions import start_message, finish_message
-from modules.utils import merge_dicts, rearrange_list
-
+import os
 from collections import defaultdict
+
+import numpy as np
+from qlink.utils import merge_dicts, rearrange_list
 from pathos.multiprocessing import Pool
+
+from qlink.log_functions import start_message, finish_message
 
 
 class Indexation:

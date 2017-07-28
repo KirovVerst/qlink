@@ -1,12 +1,9 @@
-import pandas as pd
 import os
 import re
-import datetime
-import json
-from conf import BASE_DIR, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
-from modules.dataset_receiving import Data
-from modules.indexation import Indexation
-from modules.matrix_calculation import MatrixCalculation
+
+from qlink.dataset_receiving import Data
+
+from examples.conf import BASE_DIR
 
 MIAC_PATH = os.path.join(BASE_DIR, 'data', 'miac')
 DATASET_XLS_PATH = os.path.join(MIAC_PATH, 'data2.xlsx')

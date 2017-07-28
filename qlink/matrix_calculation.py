@@ -1,7 +1,8 @@
 import json
 
-from modules.log_functions import start_message, finish_message
-from modules.dataset_processing import EditDistanceMatrix
+from qlink.dataset_processing import EditDistanceMatrix
+
+from qlink.log_functions import start_message, finish_message
 
 
 class MatrixCalculation:

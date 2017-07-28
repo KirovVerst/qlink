@@ -1,10 +1,11 @@
-import numpy as np
-import os
-import json
 import copy
+import json
+import os
 
+import numpy as np
 from pathos.multiprocessing import Pool
-from modules.log_functions import start_message, finish_message
+
+from qlink.log_functions import start_message, finish_message
 
 
 class DuplicateSearching:

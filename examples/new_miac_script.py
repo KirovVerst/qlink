@@ -1,12 +1,13 @@
-import pandas as pd
-import os
 import datetime
+import os
 
-from modules.indexation import Indexation
-from modules.matrix_calculation import MatrixCalculation
-from modules.duplicate_searching import Searcher
-from modules.duplicates_merger import Merger
-from conf import BASE_DIR, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
+import pandas as pd
+from qlink.duplicates_merger import Merger
+from qlink.indexation import Indexation
+from qlink.matrix_calculation import MatrixCalculation
+
+from examples.conf import BASE_DIR, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
+from qlink.duplicate_searching import Searcher
 
 DATA_FOLDER = os.path.join(BASE_DIR, "data", "miac", "test")
 

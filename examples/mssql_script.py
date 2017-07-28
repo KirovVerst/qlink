@@ -1,8 +1,9 @@
-import pyodbc
-import pandas as pd
 import os
 
-from conf import DATABASE, BASE_DIR
+import pandas as pd
+import pyodbc
+
+from examples.conf import DATABASE, BASE_DIR
 
 DATA_PATH = os.path.join(BASE_DIR, 'data', 'spbu', 'data.csv')
 COLUMN_NAMES = ["id", "FirstName", "SecondName", "MiddleName", "FirstNameEng", "SecondNameEng", "MiddleNameEng", "Sex",

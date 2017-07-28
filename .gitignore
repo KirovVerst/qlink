@@ -95,7 +95,7 @@ ENV/
 /logs/
 
 # configuration
-conf.py
+examples/conf.py
 
 /data/miac
 /data/address

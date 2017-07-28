@@ -1,8 +1,9 @@
 import pandas as pd
-from conf import MIAC_SMALL_DATA, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
-from modules.indexation import Indexation
-from modules.matrix_calculation import MatrixCalculation
-from modules.duplicate_searching import Searcher
+from qlink.indexation import Indexation
+from qlink.matrix_calculation import MatrixCalculation
+
+from examples.conf import MIAC_SMALL_DATA, MIAC_STR_FIELDS, MIAC_DATE_FIELDS
+from qlink.duplicate_searching import Searcher
 
 
 def run(is_sample, size=None):
