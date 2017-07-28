@@ -15,6 +15,8 @@ Installation
 Algorithm workflow
 ------------------
 ..  image:: https://i.imgur.com/dd3E7tZ.png
+      :height: 100px
+      :width: 200 px
       :alt: Latest version released on PyPi
 
 ---------
