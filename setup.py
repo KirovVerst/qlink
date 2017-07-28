@@ -28,6 +28,14 @@ setup(
 
         'Programming Language :: Python :: 3.6',
     ],
+
+    install_requires=[
+        "pathos",
+        "numpy",
+        "sqlalchemy",
+        "pandas",
+    ],
+
     keywords=['deduplication', 'record linkage', 'entity resolution', 'match'],
     packages=["qlink"],
 )
