@@ -10,7 +10,7 @@ Installation
 ------------
 .. code-block:: bash
 
-  $ pip install qgeneration
+  $ pip install qlink
     
 ------------------
 Algorithm workflow
